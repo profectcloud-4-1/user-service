@@ -23,7 +23,7 @@ public class CartController {
 	public ApiResponse<CartResponseDto> getCart() {
 		Cart cart = cartService.getCart(null);
 
-		return ApiResponse.of(SuccessStatus._OK, CartDtoMapper.toDto(cart));
+		return ApiResponse.of(SuccessStatus._OK, CartDtoMapper.toCartDto(cart));
 	}
 
 }

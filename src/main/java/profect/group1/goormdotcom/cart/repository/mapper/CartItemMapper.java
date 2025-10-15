@@ -21,18 +21,4 @@ public class CartItemMapper {
 		);
 	}
 
-	public static CartItemEntity toEntity(final CartItem domain) {
-		return new CartItemEntity(
-				domain.getId(),
-				domain.getCartId(),
-				domain.getProductId(),
-				domain.getQuantity(),
-				domain.getPrice(),
-				domain.getDeliveryCost(),
-				domain.getCreatedAt(),
-				domain.getUpdatedAt(),
-				domain.getDeletedAt()
-		);
-	}
-
 }

@@ -9,7 +9,7 @@ import profect.group1.goormdotcom.cart.domain.CartItem;
 @Component
 public class CartDtoMapper {
 
-	public static CartResponseDto toDto(Cart cart) {
+	public static CartResponseDto toCartDto(Cart cart) {
 		return new CartResponseDto(
 				cart.getId(),
 				cart.getCustomerId(),
