@@ -6,13 +6,16 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import java.util.List;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Getter
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class ListRequestDto extends PaginationRequestDto {
+    @Schema(description = "검색 필드", defaultValue = "name")
     private String searchField = "name";
+    @Schema(description = "필터", example = "name:HW,role:SELLER")
     private String filter; // filterField:filterValue,filterField:filterValue,...
 
     public void setSearchField(String searchField) {

@@ -29,7 +29,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserController implements UserApiDocs {
     
     private final UserService service;
 
@@ -146,19 +146,20 @@ public class UserController {
         return ApiResponse.onSuccess(ListResponseDto.of(users));
     }
 
-    @GetMapping("/auth-guard-test")
-    public ApiResponse<Object> authTest(HttpServletRequest request) {
-        Claims claims = (Claims) request.getAttribute("jwtClaims");
-        if (claims == null) {
-            return ApiResponse.onFailure(ErrorStatus._UNAUTHORIZED.getCode(), ErrorStatus._UNAUTHORIZED.getMessage(), null);
-        }
-        return ApiResponse.onSuccess(claims);
-    }
+    // NOTE: API 인증 예시 코드. 참고용으로 남겨둠.
+    // @GetMapping("/auth-guard-test")
+    // public ApiResponse<Object> authTest(HttpServletRequest request) {
+    //     Claims claims = (Claims) request.getAttribute("jwtClaims");
+    //     if (claims == null) {
+    //         return ApiResponse.onFailure(ErrorStatus._UNAUTHORIZED.getCode(), ErrorStatus._UNAUTHORIZED.getMessage(), null);
+    //     }
+    //     return ApiResponse.onSuccess(claims);
+    // }
 
-    @GetMapping("/role-guard-test")
-    @PreAuthorize("hasRole('MASTER')")
-    public ApiResponse<Object> roleGuardTest(HttpServletRequest request) {
-        Claims claims = (Claims) request.getAttribute("jwtClaims");
-        return ApiResponse.onSuccess(claims);
-    }
+    // @GetMapping("/role-guard-test")
+    // @PreAuthorize("hasRole('MASTER')")
+    // public ApiResponse<Object> roleGuardTest(HttpServletRequest request) {
+    //     Claims claims = (Claims) request.getAttribute("jwtClaims");
+    //     return ApiResponse.onSuccess(claims);
+    // }
 }
