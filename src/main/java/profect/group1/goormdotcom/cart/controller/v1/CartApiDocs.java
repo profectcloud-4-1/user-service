@@ -77,52 +77,6 @@ public interface CartApiDocs {
 	profect.group1.goormdotcom.apiPayload.ApiResponse<CartResponseDto> getCart();
 
 	@Operation(
-			summary = "장바구니 생성",
-			description = "새로운 장바구니를 생성합니다."
-	)
-	@ApiResponses({
-			@ApiResponse(
-					responseCode = "201",
-					description = "장바구니 생성 성공",
-					content = @Content(
-							mediaType = "application/json",
-							schema = @Schema(implementation = ApiResponse.class),
-							examples = @ExampleObject(
-									name = "성공 예시",
-									value = """
-											{
-											    "code": "201",
-											    "message": "요청에 성공하였습니다.",
-											    "result": "123e4567-e89b-12d3-a456-426614174000"
-											}
-											"""
-							)
-					)
-			),
-			@ApiResponse(
-					responseCode = "400",
-					description = "이미 장바구니가 존재함",
-					content = @Content(
-							mediaType = "application/json",
-							examples = @ExampleObject(
-									name = "실패 예시",
-									value = """
-											{
-											    "code": "404",
-											    "message": "이미 장바구니가 존재합니다."
-											}
-											"""
-							)
-					)
-			)
-	})
-	@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "201",
-			description = "장바구니 생성 성공"
-	)
-	profect.group1.goormdotcom.apiPayload.ApiResponse<UUID> createCart();
-
-	@Operation(
 			summary = "장바구니에 아이템 추가",
 			description = "장바구니에 새로운 아이템을 추가하거나 기존 아이템의 수량을 증가시킵니다."
 	)

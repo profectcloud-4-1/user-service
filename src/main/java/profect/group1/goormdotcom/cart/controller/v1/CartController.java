@@ -38,14 +38,6 @@ public class CartController implements CartApiDocs {
 		return ApiResponse.of(SuccessStatus._OK, CartDtoMapper.toCartDto(cart));
 	}
 
-	@ResponseStatus(HttpStatus.CREATED)
-	@PostMapping
-	public ApiResponse<UUID> createCart() {
-		UUID cartId = cartService.createCart(null);
-
-		return ApiResponse.of(SuccessStatus._OK, cartId);
-	}
-
 	@PostMapping("/items")
 	public ApiResponse<CartResponseDto> addItemToCart(
 			@RequestBody @Valid AddCartItemRequestDto request
