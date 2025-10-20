@@ -12,6 +12,9 @@ import lombok.Setter;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
+import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
+import profect.group1.goormdotcom.delivery.domain.DeliveryStepHistory;
+
 
 @Getter
 @Setter
@@ -26,5 +29,9 @@ public class DeliveryReturn {
 	private String trackingNumber;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+
+    private DeliveryAddress senderAddress;
+	private DeliveryAddress receiverAddress;
+	private List<DeliveryStepHistory> deliveryStepHistories;
 	
 }

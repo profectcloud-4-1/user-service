@@ -1,25 +1,11 @@
 package profect.group1.goormdotcom.delivery.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
-import profect.group1.goormdotcom.delivery.repository.DeliveryRepository;
-import profect.group1.goormdotcom.delivery.repository.DeliveryReturnRepository;
-import profect.group1.goormdotcom.delivery.repository.DeliveryAddressRepository;
-import profect.group1.goormdotcom.delivery.repository.DeliveryReturnAddressRepository;
-import profect.group1.goormdotcom.delivery.repository.DeliveryStepHistoryRepository;
-import profect.group1.goormdotcom.delivery.repository.DeliveryReturnStepHistoryRepository;
+import java.util.UUID;
 
-@Service
-@Transactional
-@RequiredArgsConstructor
-public class DeliveryService {
-
-	private final DeliveryRepository deliveryRepo;
-	private final DeliveryReturnRepository deliveryReturnRepo;
-	private final DeliveryAddressRepository deliveryAddressRepo;
-	private final DeliveryReturnAddressRepository deliveryReturnAddressRepo;
-	private final DeliveryStepHistoryRepository deliveryStepHistoryRepo;
-	private final DeliveryReturnStepHistoryRepository deliveryReturnStepHistoryRepo;
-
+public interface DeliveryService {
+	/**
+	 * 반송 가능 여부 확인
+	 * @return -1: 존재하지 않는 order id, 0: 반송불가(현재 배송중), 1: 즉시취소 가능(배송 시작 전이기 때문), 2: 반송 프로세스를 거쳐 반송 가능(배송 완료됨)
+	 */
+	public Integer canReturn(UUID orderId);
 }

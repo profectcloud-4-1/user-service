@@ -12,6 +12,10 @@ import lombok.Setter;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
+import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
+import profect.group1.goormdotcom.delivery.domain.DeliveryStepHistory;
+import profect.group1.goormdotcom.delivery.domain.enums.DeliveryStatus;
+
 
 @Getter
 @Setter
@@ -26,6 +30,20 @@ public class Delivery {
 	private String trackingNumber;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+
+	private DeliveryAddress senderAddress;
+	private DeliveryAddress receiverAddress;
+	private List<DeliveryStepHistory> deliveryStepHistories;
+
+	
+	public Integer canReturn() {
+		if (DeliveryStatus.IN_DELIVERY.getCode().equals(this.status))
+			return 0;
+		if (DeliveryStatus.PENDING.getCode().equals(this.status))
+			return 1;
+
+		return 2;
+	}
 
 	
 }
