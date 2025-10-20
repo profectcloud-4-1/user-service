@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import profect.group1.goormdotcom.common.security.AuthenticationFailedEntryPoint;
 import profect.group1.goormdotcom.common.security.JwtAuthenticationFilter;
 import profect.group1.goormdotcom.common.security.JwtTokenProvider;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 @EnableWebSecurity
