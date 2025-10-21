@@ -17,4 +17,8 @@ public class TossPaymentConfig {
     private String failUrl;
 
     public static final String URL = "https://api.tosspayments.com/v1/payments/";
+
+    public String getConfirmUrl() {
+        return URL;
+    }
 }
