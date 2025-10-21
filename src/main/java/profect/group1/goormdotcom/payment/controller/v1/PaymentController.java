@@ -2,15 +2,13 @@ package profect.group1.goormdotcom.payment.controller.v1;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.payment.controller.dto.PaymentResponseDto;
 import profect.group1.goormdotcom.payment.controller.dto.request.PaymentCreateRequestDto;
+import profect.group1.goormdotcom.payment.controller.dto.request.PaymentFailRequestDto;
+import profect.group1.goormdotcom.payment.controller.dto.request.PaymentSuccessRequestDto;
 import profect.group1.goormdotcom.payment.controller.mapper.PaymentDtoMapper;
 import profect.group1.goormdotcom.payment.domain.Payment;
 import profect.group1.goormdotcom.payment.service.PaymentService;
@@ -28,5 +26,19 @@ public class PaymentController implements PaymentApiDocs {
 
         Payment payment = paymentService.requestPayment(paymentRequestDto, user);
         return ApiResponse.onSuccess(PaymentDtoMapper.toPaymentDto(payment));
+    }
+
+    @Override
+    @GetMapping("/toss/success")
+    public ApiResponse<PaymentResponseDto> tossPaymentSuccess(@ModelAttribute @Valid PaymentSuccessRequestDto paymentSuccessRequestDto) {
+        Payment payment = paymentService.tossPaymentSuccess(paymentSuccessRequestDto);
+        return ApiResponse.onSuccess(PaymentDtoMapper.toPaymentDto(payment));
+    }
+
+    @Override
+    @GetMapping("/toss/fail")
+    public ApiResponse<Void> tossPaymentFail(@ModelAttribute @Valid PaymentFailRequestDto paymentFailRequestDto) {
+        paymentService.tossPaymentFail(paymentFailRequestDto);
+        return ApiResponse.onSuccess(null);
     }
 }

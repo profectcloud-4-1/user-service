@@ -8,18 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import profect.group1.goormdotcom.payment.controller.dto.PaymentResponseDto;
 import profect.group1.goormdotcom.payment.controller.dto.request.PaymentCreateRequestDto;
+import profect.group1.goormdotcom.payment.controller.dto.request.PaymentFailRequestDto;
+import profect.group1.goormdotcom.payment.controller.dto.request.PaymentSuccessRequestDto;
 import profect.group1.goormdotcom.user.domain.User;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Tag(name = "결제 관리", description = "결제 관련 API")
 public interface PaymentApiDocs {
@@ -45,5 +41,37 @@ public interface PaymentApiDocs {
     profect.group1.goormdotcom.apiPayload.ApiResponse<PaymentResponseDto> requestPayment(
             @AuthenticationPrincipal User user,
             @RequestBody @Valid PaymentCreateRequestDto paymentRequestDto
+    );
+
+    @Operation(
+            summary = "결제 성공 리디렉션 API",
+            description = "결제 성공 시 리디렉션되는 API입니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공입니다"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청",
+                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class))
+            )
+    })
+    profect.group1.goormdotcom.apiPayload.ApiResponse<PaymentResponseDto> tossPaymentSuccess(
+            @ModelAttribute @Valid PaymentSuccessRequestDto paymentSuccessRequestDto
+    );
+
+    @Operation(
+            summary = "결제 실패 리디렉션 API",
+            description = "결제 실패 시 리디렉션되는 API입니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공입니다"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청",
+                    content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class))
+            )
+    })
+    profect.group1.goormdotcom.apiPayload.ApiResponse<Void> tossPaymentFail(
+            @ModelAttribute @Valid PaymentFailRequestDto paymentFailRequestDto
     );
 }

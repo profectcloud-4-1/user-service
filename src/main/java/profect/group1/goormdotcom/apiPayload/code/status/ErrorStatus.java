@@ -14,6 +14,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
+    _NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON404", "찾을 수 없는 요청입니다."),
     INVALID_REQUEST_PARAMETER(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청 파라미터입니다"),
     AUTH_INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "AUTH400", "잘못된 비밀번호 형식입니다"),
     AUTH_EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "AUTH409", "이미 존재하는 이메일입니다"),
@@ -24,7 +25,10 @@ public enum ErrorStatus implements BaseErrorCode {
     COMMON_CODE_INVALID_GROUP_NAME(HttpStatus.BAD_REQUEST, "COMMON400", "허용되지 않은 그룹이름입니다"),
 
 
-    _DUPLICATE_REQUEST(HttpStatus.CONFLICT, "COMMON409", "이미 처리 중인 요청입니다.");
+    _DUPLICATE_PAYMENT_REQUEST(HttpStatus.CONFLICT, "PAYMENT409", "이미 처리 중인 결제 요청입니다."),
+    _PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT404", "존재하지 않는 결제 정보입니다."),
+    _INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "PAYMENT400", "결제 금액이 일치하지 않습니다.");
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

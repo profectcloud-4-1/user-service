@@ -11,7 +11,6 @@ import java.util.UUID;
 
 public record PaymentResponseDto (
         UUID id,
-        UUID orderId,
         PayType payType,
         Status status,
         Long amount
