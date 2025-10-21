@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -19,6 +20,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.hibernate.annotations.Comment;
 import jakarta.persistence.Column;
+import org.hibernate.annotations.UuidGenerator;
 
 @Getter
 @Setter
@@ -36,6 +38,8 @@ import jakarta.persistence.Column;
 public class DeliveryAddressEntity extends BaseEntity {
 
 	@Id
+	@GeneratedValue
+	@UuidGenerator
 	private UUID id;
 
 	@Column(name = "deleted_at")
@@ -85,8 +89,5 @@ public class DeliveryAddressEntity extends BaseEntity {
 	@Comment("수신자 이름")
 	private String receiverName;
 
-	@Column(name = "delivery_memo", nullable = false)
-	@Comment("배송 메모")
-	private String deliveryMemo;
 	
 }

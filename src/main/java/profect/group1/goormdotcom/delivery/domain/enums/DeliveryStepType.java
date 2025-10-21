@@ -1,15 +1,16 @@
 package profect.group1.goormdotcom.delivery.domain.enums;
 
-public enum DeliveryStatus {
-    PENDING("DLV0000", "발송 대기"),
-    IN_DELIVERY("DLV0001", "배송 중"),
-    FINISH("DLV0002", "배송 완료"),
-    CANCELLED("DLV0003", "배송 취소");
+public enum DeliveryStepType {
+    INIT("DLV0100", "배송요청 접수"),
+    READY("DLV0101", "배송 준비완료"),
+    HUB("DLV0102", "허브에 도착"),
+    STARTED("DLV0103", "집배원이 배송 시작"),
+    DONE("DLV0104", "배송완료");
 
     private final String code;
     private final String visibleLabel;
 
-    DeliveryStatus(String code, String visibleLabel) {
+    DeliveryStepType(String code, String visibleLabel) {
         this.code = code;
         this.visibleLabel = visibleLabel;
     }

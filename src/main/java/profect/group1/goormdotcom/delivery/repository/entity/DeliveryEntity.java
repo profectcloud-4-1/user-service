@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -19,13 +20,15 @@ import org.hibernate.annotations.Comment;
 import jakarta.persistence.Column;
 import lombok.Setter;
 import lombok.Builder;
+import lombok.ToString;
+import org.hibernate.annotations.UuidGenerator;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-
+@ToString
 
 @Entity
 @Table(name = "p_delivery")
@@ -36,6 +39,8 @@ import lombok.Builder;
 public class DeliveryEntity extends BaseEntity {
 
 	@Id
+	@GeneratedValue
+	@UuidGenerator
 	private UUID id;
 
 	@Column(name = "deleted_at")

@@ -12,10 +12,19 @@ import profect.group1.goormdotcom.delivery.repository.DeliveryReturnStepHistoryR
 
 import java.util.UUID;
 import java.util.Optional;
+import java.util.List;
 
 import profect.group1.goormdotcom.delivery.domain.Delivery;
 import profect.group1.goormdotcom.delivery.repository.entity.DeliveryEntity;
 import profect.group1.goormdotcom.delivery.repository.mapper.DeliveryMapper;
+import profect.group1.goormdotcom.delivery.domain.enums.DeliveryStatus;
+import profect.group1.goormdotcom.delivery.domain.enums.DeliveryStepType;
+import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
+import profect.group1.goormdotcom.delivery.domain.DeliveryReturn;
+import profect.group1.goormdotcom.delivery.domain.DeliveryManager;
+import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
+import profect.group1.goormdotcom.delivery.controller.dto.request.CreateAddressRequestDto;
+
 
 @Service
 @Transactional
@@ -29,12 +38,66 @@ public class DeliveryServiceImpl implements DeliveryService {
 	private final DeliveryStepHistoryRepository stepHistoryRepo;
 	private final DeliveryReturnStepHistoryRepository returnStepHistoryRepo;
 
+	private final DeliveryManager deliveryManager;
+
 	public Integer canReturn(UUID orderId) {
 		Optional<DeliveryEntity> found = this.repo.findByOrderId(orderId);
 		if (found.isEmpty()) return -1;
 
 		return DeliveryMapper.toDomain(found.get()).canReturn();
 	}
+
+	@Transactional
+	public Delivery createDelivery(UUID orderId, UUID brandId, UUID customerAddressId) {
+		Delivery delivery = this.deliveryManager.createDelivery(orderId, brandId, customerAddressId);
+
+		return delivery;
+	}
+
+	@Transactional
+	public boolean cancel(UUID deliveryId) {
+		this.deliveryManager.cancel(deliveryId);
+		return true;
+	}
+
+	@Transactional
+	public DeliveryReturn returnDelivery(UUID deliveryId) {
+		DeliveryReturn deliveryReturn = this.deliveryManager.returnDelivery(deliveryId);
+		return deliveryReturn;
+	}
+
+	public List<DeliveryAddress> getAddressesByCustomerId(UUID customerId) {
+		return this.deliveryManager.getAddressesByCustomerId(customerId);
+	}
+
+	public DeliveryAddress createCustomerAddress(UUID customerId, CreateAddressRequestDto body) {
+		return this.deliveryManager.createCustomerAddress(customerId, body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
+	}
+
+    public DeliveryAddress updateCustomerAddress(UUID customerId, UUID addressId, CreateAddressRequestDto body) {
+        return this.deliveryManager.updateCustomerAddress(customerId, addressId, body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
+	}
+
+    public boolean deleteCustomerAddress(UUID customerId, UUID addressId) {
+        this.deliveryManager.deleteCustomerAddress(customerId, addressId);
+        return true;
+	}
+
+    // Brand address (MASTER)
+    public List<DeliveryAddress> getBrandAddressesByBrandId(UUID brandId) {
+        return this.deliveryManager.getBrandAddressesByBrandId(brandId);
+    }
+
+    public DeliveryAddress createBrandAddress(CreateAddressRequestDto body) {
+        return this.deliveryManager.createBrandAddress(body.getBrandId(), body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
+    }
+
+    public DeliveryAddress updateBrandAddress(UUID addressId, CreateAddressRequestDto body) {
+        return this.deliveryManager.updateBrandAddress(addressId, body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName());
+    }
+
+    public boolean deleteBrandAddress(UUID addressId) {
+        this.deliveryManager.deleteBrandAddress(addressId);
+        return true;
+    }
 }
-
-

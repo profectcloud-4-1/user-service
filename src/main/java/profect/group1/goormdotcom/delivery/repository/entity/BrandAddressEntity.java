@@ -11,15 +11,16 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Builder;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import profect.group1.goormdotcom.common.domain.BaseEntity;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.hibernate.annotations.Comment;
 import jakarta.persistence.Column;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
 @Getter
@@ -27,15 +28,15 @@ import org.hibernate.annotations.UuidGenerator;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-
+@ToString
 
 @Entity
-@Table(name = "p_delivery_return")
-@Comment("반송")
+@Table(name = "p_brand_address")
+@Comment("브랜드 배송지")
 @EntityListeners(AuditingEntityListener.class)
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-@SQLDelete(sql = "update p_delivery_return set deleted_at = NOW() where id = ?")
-public class DeliveryReturnEntity extends BaseEntity {
+@SQLDelete(sql = "update p_brand_address set deleted_at = NOW() where id = ?")
+public class BrandAddressEntity extends BaseEntity {
 
 	@Id
 	@GeneratedValue
@@ -44,17 +45,26 @@ public class DeliveryReturnEntity extends BaseEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+	
+	@Column(name = "brand_id", nullable = false)
+	@Comment("브랜드 ID (p_brand.id)")
+	private UUID brandId;
 
-	@Column(name = "delivery_id", nullable = false)
-	@Comment("배송 ID (p_delivery.id)")
-	private UUID deliveryId;
+	@Column(name = "address", nullable = false)
+	@Comment("주소")
+	private String address;
+	@Column(name = "address_detail", nullable = false)
+	@Comment("상세주소")
+	private String addressDetail;
+	@Column(name = "zipcode", nullable = false)
+	@Comment("우편번호")
+	private String zipcode;
+	@Column(name = "phone", nullable = false)
+	@Comment("전화번호")
+	private String phone;
+	@Column(name = "name", nullable = false)
+	@Comment("수취인 이름")
+	private String name;
 
-	@Column(name = "status", nullable = false, length = 7)
-	@Comment("반송 상태 (code_key: DELIVERY_RETURN_STATUS)")
-	private String status;
-
-	@Column(name = "tracking_number")
-	@Comment("송장 번호")
-	private String trackingNumber;
 	
 }
