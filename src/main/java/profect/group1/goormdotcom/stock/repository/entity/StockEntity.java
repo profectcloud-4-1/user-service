@@ -3,8 +3,8 @@ package profect.group1.goormdotcom.stock.repository.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.checkerframework.checker.units.qual.s;
 import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.SQLDelete;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -22,7 +22,7 @@ import profect.group1.goormdotcom.common.domain.BaseEntity;
 @Entity
 @Table(name = "p_stock")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-// @SQLDelete(sql = "")
+@SQLDelete(sql = "update p_stock set deleted_at = NOw() WHERE id = ?")
 public class StockEntity extends BaseEntity{
     
     @Id
