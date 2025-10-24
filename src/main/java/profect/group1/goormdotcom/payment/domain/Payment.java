@@ -18,6 +18,7 @@ import java.util.UUID;
 public class Payment {
 
     private UUID id;
+    private UUID userId;
     private UUID orderId;
     private String orderNumber;
     private String orderName;
@@ -30,12 +31,14 @@ public class Payment {
     private LocalDateTime cancelledAt;
 
     public Payment(
+            UUID userId,
             UUID orderId,
             String orderNumber,
             String orderName,
             PayType payType,
             Long amount
     ) {
+        this.userId = userId;
         this.orderId = orderId;
         this.orderNumber = orderNumber;
         this.orderName = orderName;
@@ -45,12 +48,13 @@ public class Payment {
         this.status = Status.PENDING;
     }
 
-    public static Payment create(UUID orderId,
+    public static Payment create(UUID userId,
+                                 UUID orderId,
                                  String orderNumber,
                                  String orderName,
                                  PayType payType,
                                  Long amount) {
-        return new Payment(orderId, orderNumber, orderName, payType, amount);
+        return new Payment(userId, orderId, orderNumber, orderName, payType, amount);
     }
 
     public void setId(UUID id) {

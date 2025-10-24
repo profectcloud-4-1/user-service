@@ -44,7 +44,7 @@ public interface PaymentApiDocs {
 
     })
     profect.group1.goormdotcom.apiPayload.ApiResponse<PaymentResponseDto> requestPayment(
-            @AuthenticationPrincipal User user,
+            //TODO: @AuthenticationPrincipal User user,
             @RequestBody @Valid PaymentCreateRequestDto paymentRequestDto
     );
 

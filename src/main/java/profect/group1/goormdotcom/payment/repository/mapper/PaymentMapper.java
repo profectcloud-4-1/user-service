@@ -13,6 +13,7 @@ public class PaymentMapper {
     ) {
         return new Payment(
                 entity.getId(),
+                entity.getUserId(),
                 entity.getOrderId(),
                 entity.getOrderNumber(),
                 entity.getOrderName(),
@@ -29,6 +30,7 @@ public class PaymentMapper {
     public static PaymentEntity toEntity(Payment payment) {
         return new PaymentEntity(
                 payment.getId(),
+                payment.getUserId(),
                 payment.getOrderId(),
                 payment.getOrderNumber(),
                 payment.getOrderName(),

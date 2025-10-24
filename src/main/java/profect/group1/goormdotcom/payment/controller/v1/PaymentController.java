@@ -2,7 +2,9 @@ package profect.group1.goormdotcom.payment.controller.v1;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
@@ -18,8 +20,14 @@ import profect.group1.goormdotcom.payment.domain.Payment;
 import profect.group1.goormdotcom.payment.domain.enums.Status;
 import profect.group1.goormdotcom.payment.service.PaymentService;
 import profect.group1.goormdotcom.user.domain.User;
+import profect.group1.goormdotcom.user.domain.enums.SellerApprovalStatus;
+import profect.group1.goormdotcom.user.domain.enums.UserRole;
+import profect.group1.goormdotcom.user.infra.UserJpaEntity;
 
+import java.awt.print.Pageable;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +37,28 @@ public class PaymentController implements PaymentApiDocs {
 
     @Override
     @PostMapping
-    public ApiResponse<PaymentResponseDto> requestPayment(@AuthenticationPrincipal User user, @RequestBody @Valid PaymentCreateRequestDto paymentRequestDto) {
+    //@PreAuthorize()
+    //TODO: @AuthenticationPrincipal User user 추가
+    public ApiResponse<PaymentResponseDto> requestPayment(@RequestBody @Valid PaymentCreateRequestDto paymentRequestDto) {
+        //개발용 임시 유저
+        UserJpaEntity tempJpaUser = UserJpaEntity.builder()
+                .id(UUID.fromString("11111111-1111-1111-1111-111111111111")) // 임시 UUID
+                .email("testuser@goorm.com")
+                .name("테스트유저")
+                .role(UserRole.CUSTOMER)
+                .password("encoded-password") // 실사용 X
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .sellerApprovalStatus(SellerApprovalStatus.PENDING)
+                .build();
+
+        //임시 매퍼
+        User user = User.builder()
+                .id(tempJpaUser.getId())
+                .name(tempJpaUser.getName())
+                .email(tempJpaUser.getEmail())
+                .role(tempJpaUser.getRole())
+                .build();
 
         Payment payment = paymentService.requestPayment(paymentRequestDto, user);
         return ApiResponse.onSuccess(PaymentDtoMapper.toPaymentDto(payment));

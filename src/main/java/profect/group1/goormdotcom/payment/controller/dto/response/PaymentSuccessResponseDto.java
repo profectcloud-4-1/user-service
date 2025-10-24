@@ -9,7 +9,6 @@ import java.time.OffsetDateTime;
 public record PaymentSuccessResponseDto (
         String mId,
         String paymentKey,
-        PayType payType,
         String orderId,
         String orderName,
         String status,

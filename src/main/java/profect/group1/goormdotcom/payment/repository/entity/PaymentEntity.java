@@ -33,6 +33,10 @@ public class PaymentEntity extends BaseEntity {
     private UUID id;
 
     @JdbcTypeCode(SqlTypes.UUID)
+    @Column(name = "user_id", columnDefinition = "uuid", nullable = false)
+    private UUID userId;
+
+    @JdbcTypeCode(SqlTypes.UUID)
     @Column(name = "order_id", columnDefinition = "uuid", nullable = false)
     private UUID orderId;
 
@@ -65,9 +69,11 @@ public class PaymentEntity extends BaseEntity {
     @Column(name = "cancelled_at", nullable = true)
     private LocalDateTime cancelledAt;
 
-    public PaymentEntity(final UUID orderId,
+    public PaymentEntity(final UUID userId,
+                         final UUID orderId,
                          final PayType payType,
                          final Long amount) {
+        this.userId = userId;
         this.orderId = orderId;
         this.payType = payType;
         this.amount = amount;

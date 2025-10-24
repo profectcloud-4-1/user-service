@@ -51,8 +51,7 @@ public class PaymentService {
             throw new PaymentHandler(ErrorStatus.INSUFFICIENT_ROLE);
         }*/
 
-        //TODO: order에서 orderId 존재하는지 확인? MSA에서는 처리할 것인지 고민
-        //한다면 OrderClient를 통해서 받기, 주문 정보 조회 및 금액 검증
+        //TODO: OrderClient를 통해서 order에서 orderId 존재하는지 확인받기, 주문 정보 조회 및 금액 검증
 
         //처리중인 결제내역이 있는지 확인
         if (dto.getOrderId() != null) {
@@ -62,13 +61,13 @@ public class PaymentService {
                     });
         }
 
-        //TODO: orderNumber order에서 전달받아야 함
+        //TODO: orderNumber order에서 전달받아야 함. 추후 삭제
         String orderNumber = dto.getOrderNumber();
         if (orderNumber == null || orderNumber.isBlank()) {
             orderNumber = generateOrderNumber();
         }
 
-        Payment payment = Payment.create(dto.getOrderId(), orderNumber, dto.getOrderName(), dto.getPayType(), dto.getAmount());
+        Payment payment = Payment.create(user.getId(), dto.getOrderId(), orderNumber, dto.getOrderName(), dto.getPayType(), dto.getAmount());
 
         //1000원 이하면 결제X
         if(payment.getAmount() < 1000) {
@@ -81,7 +80,7 @@ public class PaymentService {
         return payment;
     }
 
-    //Order에서 만들어서 넘어와야 함. 임시 구현
+    //TODO: Order에서 만들어서 넘어와야 함. 임시 구현, 추후 삭제
     private String generateOrderNumber() {
         var now = java.time.LocalDateTime.now();
         String ts = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
