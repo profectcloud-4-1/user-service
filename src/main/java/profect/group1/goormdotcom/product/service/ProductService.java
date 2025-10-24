@@ -46,21 +46,22 @@ public class ProductService {
             description
         );
 
-        // TODO: Register stockQuantity
+        
         StockRequestDto stockRequestDto = new StockRequestDto(productId, stockQuantity);
         ApiResponse<StockResponseDto> response = stockClient.registerStock(stockRequestDto);
-        System.out.println(response);
-        System.out.println(response.getResult());
         StockResponseDto stockResponseDto = response.getResult();
+        if (stockResponseDto == null) {
+            throw new IllegalStateException("Failed to register stock");
+        }
         
         productRepository.save(productEntity);
             
         return productId;
     }
 
-    // 이미지 Update Method는 따로 구현
     public Product updateProduct(
         final UUID productId,
+        final UUID bradnId,
         final UUID categoryId,
         final String productName,
         final int price,
@@ -68,6 +69,10 @@ public class ProductService {
     ) {
         ProductEntity productEntity = productRepository.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("Prdocut not found"));
+
+        if (productEntity.getBrandId() != bradnId) {
+            throw new IllegalStateException("Product is not owned by your brand.");
+        }
 
         ProductEntity newProductEntity = new ProductEntity(
             productId, productEntity.getBrandId(), categoryId, productName, price, description
@@ -79,8 +84,15 @@ public class ProductService {
     }
 
     public void deleteProduct(
-        final UUID productId
+        final UUID productId,
+        final UUID brandId
     ) {
+        ProductEntity productEntity = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("Prdocut not found"));
+
+        if (productEntity.getBrandId() != brandId) {
+            throw new IllegalStateException("Product is not owned by your brand.");
+        }
         productRepository.deleteById(productId);
         List<ProductImageEntity> imageEntities = productImageRepository.findByProductId(productId);
         List<UUID> imageIds = imageEntities.stream().map(ProductImageEntity::getId).toList();
@@ -88,8 +100,19 @@ public class ProductService {
     }
 
     public void deleteProducts(
-        final List<UUID> productIds
+        final List<UUID> productIds,
+        final UUID brandId
     ) {
+        // TODO: brandId 체크 로직 추가 (상품의 소유권을 지닌 브랜드만 수정가능해야함.)
+        for (UUID productId: productIds) {
+            ProductEntity productEntity = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Prdocut not found"));
+
+            if (productEntity.getBrandId() != brandId) {
+                throw new IllegalStateException("Product is not owned by your brand.");
+            }
+        }
+        
         productRepository.deleteAllById(productIds);
         
     }

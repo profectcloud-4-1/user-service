@@ -6,12 +6,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.UUID;
 
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.product.controller.dto.DeleteProductRequestDto;
 import profect.group1.goormdotcom.product.controller.dto.ProductRequestDto;
 import profect.group1.goormdotcom.product.controller.dto.ProductResponseDto;
 import profect.group1.goormdotcom.product.controller.dto.UpdateProductRequestDto;
@@ -54,7 +57,7 @@ public interface ProductApiDocs {
         description = "성공",
         content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "success", value = "{\"code\":\"COMMON200\",\"message\":\"성공입니다.\"}"))
     )
-    ApiResponse<UUID> deleteProduct(@Parameter(description = "상품 ID") UUID productId);
+    ApiResponse<UUID> deleteProduct(@Parameter(description = "상품 ID") UUID productId, @RequestBody @Valid UUID brandId);
 
     @Operation(summary = "상품 일괄 삭제", description = "SELLER 전용", security = { @SecurityRequirement(name = "bearerAuth") })
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -62,5 +65,5 @@ public interface ProductApiDocs {
         description = "성공",
         content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "success", value = "{\"code\":\"COMMON200\",\"message\":\"성공입니다.\"}"))
     )
-    ApiResponse<List<UUID>> deleteProducts(@RequestBody List<UUID> productIds);
+    ApiResponse<List<UUID>> deleteProducts(@RequestBody DeleteProductRequestDto request);
 }

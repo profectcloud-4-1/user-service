@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.apiPayload.code.status.SuccessStatus;
+import profect.group1.goormdotcom.product.controller.dto.DeleteProductRequestDto;
 import profect.group1.goormdotcom.product.controller.dto.ProductImageResponseDto;
 import profect.group1.goormdotcom.product.controller.dto.ProductRequestDto;
 import profect.group1.goormdotcom.product.controller.dto.ProductResponseDto;
@@ -72,6 +73,7 @@ public class ProductController implements ProductApiDocs {
     ) {
         Product product = productService.updateProduct(
             productId,
+            request.brandId(),
             request.categoryId(),
             request.name(),
             request.price(),
@@ -84,19 +86,20 @@ public class ProductController implements ProductApiDocs {
     @DeleteMapping("/{productId}")
     @PreAuthorize("hasRole('SELLER')")
     public ApiResponse<UUID> deleteProduct(
-        @PathVariable(value = "productId") UUID productId
+        @PathVariable(value = "productId") UUID productId,
+        @RequestBody @Valid UUID brandId
     )  {
-        productService.deleteProduct(productId);
+        productService.deleteProduct(productId, brandId);
         return ApiResponse.of(SuccessStatus._OK, productId);
     }
 
-    @DeleteMapping("/bulk")
+    @DeleteMapping("/")
     @PreAuthorize("hasRole('SELLER')")
     public ApiResponse<List<UUID>> deleteProducts(
-        @RequestBody List<UUID> productIds
+        @RequestBody DeleteProductRequestDto request
     )  {
-        productService.deleteProducts(productIds);
-        return ApiResponse.of(SuccessStatus._OK, productIds);
+        productService.deleteProducts(request.productIds(), request.brandId());
+        return ApiResponse.of(SuccessStatus._OK, request.productIds());
     }
     
     // preesigned URL 및 image_id 반환
