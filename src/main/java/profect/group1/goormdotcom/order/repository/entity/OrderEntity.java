@@ -48,5 +48,4 @@ public class OrderEntity {
     // @Singular("item")
     // private List<OrderProductEntity> items = new ArrayList<>();
 
-
 }

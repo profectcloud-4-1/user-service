@@ -1,6 +1,5 @@
 package profect.group1.goormdotcom.order.controller.mapper;
 
-
 import org.springframework.stereotype.Component;
 import profect.group1.goormdotcom.order.controller.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.controller.dto.OrderResponseDto;
@@ -52,4 +51,5 @@ public class OrderDtoMapper {
                 .build();
 
     }
+
 }
