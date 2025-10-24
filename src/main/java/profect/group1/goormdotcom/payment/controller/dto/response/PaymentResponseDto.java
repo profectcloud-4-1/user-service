@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public record PaymentResponseDto (
         UUID id,
-        PayType payType,
+        PayType payType, //제외?
         Status status,
         Long amount
 ) {
