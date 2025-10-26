@@ -36,9 +36,8 @@ public class PaymentHistoryEntity extends BaseEntity {
     @Column(name = "payment_id", columnDefinition = "uuid", nullable = false)
     private UUID paymentId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)
-    private Status status;
+    private String status;
 
     @Column(name = "amount", nullable = false)
     private Long amount;
@@ -50,7 +49,7 @@ public class PaymentHistoryEntity extends BaseEntity {
     private String rawResponse;
 
     public PaymentHistoryEntity(final UUID paymentId,
-                         final Status status,
+                         final String status,
                          final Long amount,
                                 final String paymentKey,
                                 final String rawResponse) {

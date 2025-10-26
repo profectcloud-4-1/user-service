@@ -14,14 +14,14 @@ import java.util.UUID;
 public class PaymentHistory {
     private UUID id;
     private UUID paymentId;
-    private Status status;
+    private String status;
     private Long amount;
     private String paymentKey;
     private String rawResponse;
 
     public PaymentHistory(
             UUID paymentId,
-            Status status,
+            String status,
             Long amount,
             String paymentKey,
             String rawResponse
@@ -34,7 +34,7 @@ public class PaymentHistory {
     }
 
     public static PaymentHistory create(UUID paymentId,
-                                        Status status,
+                                        String status,
                                         Long amount,
                                         String paymentKey,
                                         String rawResponse) {

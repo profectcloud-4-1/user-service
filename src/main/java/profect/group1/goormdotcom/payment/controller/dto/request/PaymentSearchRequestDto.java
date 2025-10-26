@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class PaymentSearchRequestDto {
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    private String status;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime fromAt;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -24,7 +23,7 @@ public class PaymentSearchRequestDto {
     private Long maxAmount;
 
     public static PaymentSearchRequestDto of(
-            Status status,
+            String status,
             LocalDateTime fromAt,
             LocalDateTime toAt,
             Long minAmount,

@@ -13,6 +13,6 @@ public class PaymentCreateRequestDto {
     private UUID orderId;
     private String orderNumber;
     private String orderName;
-    private PayType payType;
+    private String payType;
     private Long amount;
 }

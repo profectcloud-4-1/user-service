@@ -54,7 +54,7 @@ public class PaymentService {
 
         //처리중인 결제내역이 있는지 확인
         if (dto.getOrderId() != null) {
-            paymentRepository.findByOrderIdAndStatus(dto.getOrderId(), Status.PENDING)
+            paymentRepository.findByOrderIdAndStatus(dto.getOrderId(), "PAY0000")
                     .ifPresent(existing -> {
                         throw new PaymentHandler(ErrorStatus._DUPLICATE_PAYMENT_REQUEST);
                     });
@@ -130,7 +130,7 @@ public class PaymentService {
             approvedAt = LocalDateTime.now();
         }
         paymentEntity.setPaymentKey(dto.getPaymentKey());
-        paymentEntity.setStatus(Status.SUCCESS);
+        paymentEntity.setStatus("SUCCESS"); //DB에서 성공상태 긁어오기
         paymentEntity.setApprovedAt(response.approvedAt().toLocalDateTime());
 
 
@@ -145,7 +145,7 @@ public class PaymentService {
         PaymentEntity paymentEntity = paymentRepository.findByOrderNumber(dto.getOrderId())
                 .orElseThrow(() -> new PaymentHandler(ErrorStatus._PAYMENT_NOT_FOUND));
 
-        paymentEntity.setStatus(Status.FAIL);
+        paymentEntity.setStatus("FAIL"); //DB에서 실패상태 긁어오기
     }
 
     @Transactional
@@ -154,10 +154,10 @@ public class PaymentService {
                 .orElseThrow(() -> new PaymentHandler(ErrorStatus._PAYMENT_NOT_FOUND));
 
         //상태 검증
-        if (paymentEntity.getStatus() == Status.CANCEL)
+        if (paymentEntity.getStatus().equals("CANCEL")) //DB에서 긁어오기
             throw new PaymentHandler(ErrorStatus._ALREADY_CANCELED_REQUEST);
-        if (paymentEntity.getStatus() != Status.SUCCESS
-                && paymentEntity.getStatus() != Status.PARTIAL_CANCEL) {
+        if (!paymentEntity.getStatus().equals("SUCCESS")
+                && !paymentEntity.getStatus().equals("PARTIAL_CANCEL")) {
             throw new PaymentHandler(ErrorStatus._INVALID_PAYMENT_STATUS);
         }
 
@@ -179,7 +179,7 @@ public class PaymentService {
         }
 
         //취소 요청 중 상태로 변경
-        paymentEntity.setStatus(Status.CANCEL_PENDING);
+        paymentEntity.setStatus("CANCEL_PENDING"); //DB에서 취소대기 긁어오기
         paymentRepository.save(paymentEntity);
 
         //트랜잭션 커밋 후 실행될 이벤트 -> PG에 결제 취소 요청
@@ -250,7 +250,7 @@ public class PaymentService {
         //상태 업데이트
         boolean isPartial = newCanceledAmount < paymentEntity.getAmount();
         paymentEntity.setCanceledAmount(newCanceledAmount);
-        paymentEntity.setStatus(isPartial ? Status.PARTIAL_CANCEL : Status.CANCEL);
+        paymentEntity.setStatus(isPartial ? "PARTIAL_CANCEL" : "CANCEL"); //긁어오기
         paymentEntity.setCanceledAt(canceledAt);
 
         paymentRepository.saveAndFlush(paymentEntity);
@@ -271,7 +271,11 @@ public class PaymentService {
             if (tossResponse != null) {
                 PaymentEntity payment = paymentRepository.findByPaymentKey(paymentKey)
                         .orElseThrow(() -> new PaymentHandler(ErrorStatus._PAYMENT_NOT_FOUND));
-                payment.setStatus(Status.fromTossStatus(TossPaymentStatus.valueOf(tossResponse.status().toUpperCase())));
+
+                TossPaymentStatus tossStatus = TossPaymentStatus.valueOf(tossResponse.status().toUpperCase());
+                String codePk = TossPaymentStatus.getCodeByTossStatus(tossStatus);
+
+                payment.setStatus(codePk);
                 paymentRepository.save(payment);
             }
         } catch (Exception ex) {

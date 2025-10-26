@@ -46,13 +46,11 @@ public class PaymentEntity extends BaseEntity {
     @Column(name = "order_name", length = 200, nullable = false)
     private String orderName;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "pay_type", nullable = false, length = 32)
-    private PayType payType;
+    private String payType;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)
-    private Status status;
+    private String status;
 
     @Column(name = "amount", nullable = false)
     private Long amount;
@@ -71,20 +69,20 @@ public class PaymentEntity extends BaseEntity {
 
     public PaymentEntity(final UUID userId,
                          final UUID orderId,
-                         final PayType payType,
+                         final String payType,
                          final Long amount) {
         this.userId = userId;
         this.orderId = orderId;
         this.payType = payType;
         this.amount = amount;
-        this.status = Status.PENDING;
+        this.status = "PENDING"; //DB에서 펜딩상태 긁어오기
     }
 
     public void setPaymentKey(String paymentKey) {
         this.paymentKey = paymentKey;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

@@ -16,8 +16,8 @@ public record PaymentSearchResponseDto (
             String orderNumber,
             String orderName,
             Long amount,
-            Status status,
-            PayType payType,
+            String status,
+            String payType,
             LocalDateTime statusAt,
             LocalDateTime approvedAt,
             LocalDateTime cancelledAt

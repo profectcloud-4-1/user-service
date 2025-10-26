@@ -22,8 +22,8 @@ public class Payment extends BaseEntity {
     private UUID orderId;
     private String orderNumber;
     private String orderName;
-    private PayType payType;
-    private Status status;
+    private String payType;
+    private String status;
     private Long amount;
     private Long canceledAmount;
     private String paymentKey;
@@ -35,7 +35,7 @@ public class Payment extends BaseEntity {
             UUID orderId,
             String orderNumber,
             String orderName,
-            PayType payType,
+            String payType,
             Long amount
     ) {
         this.userId = userId;
@@ -45,14 +45,14 @@ public class Payment extends BaseEntity {
         this.payType = payType;
         this.amount = amount;
         this.canceledAmount = (long) 0;
-        this.status = Status.PENDING;
+        this.status = "PENDING"; //DB에서 펜딩상태 긁어오기
     }
 
     public static Payment create(UUID userId,
                                  UUID orderId,
                                  String orderNumber,
                                  String orderName,
-                                 PayType payType,
+                                 String payType,
                                  Long amount) {
         return new Payment(userId, orderId, orderNumber, orderName, payType, amount);
     }
@@ -62,17 +62,17 @@ public class Payment extends BaseEntity {
     }
 
     public void markSuccess(String paymentKey, LocalDateTime approvedAt) {
-        this.status = Status.SUCCESS;
+        this.status = "SUCCESS"; //DB에서 성공상태 긁어오기
         this.paymentKey = paymentKey;
         this.approvedAt = approvedAt;
     }
 
     public void markCancel(LocalDateTime canceledAt) {
-        this.status = Status.CANCEL;
+        this.status = "CANCEL"; //DB에서 취소상태 긁어오기
         this.canceledAt = canceledAt;
     }
 
     public void markFail() {
-        this.status = Status.FAIL;
+        this.status = "FAIL"; //DB에서 실패상태 긁어오기
     }
 }
