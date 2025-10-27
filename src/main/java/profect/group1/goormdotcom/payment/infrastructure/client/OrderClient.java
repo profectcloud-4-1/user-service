@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @FeignClient(
         name = "order-service",
-        url = "${order.service.url}",
         fallback = OrderClientFallBack.class
 )
 public interface OrderClient {
