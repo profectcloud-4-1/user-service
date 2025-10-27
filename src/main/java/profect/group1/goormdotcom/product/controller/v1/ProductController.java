@@ -36,7 +36,7 @@ public class ProductController implements ProductApiDocs {
     private final ProductService productService;
 
     @PostMapping("/register")
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<UUID> registerProduct(
         @RequestBody @Valid ProductRequestDto request
     ) {
@@ -63,7 +63,7 @@ public class ProductController implements ProductApiDocs {
     }
     
     @PutMapping("/{productId}")
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<ProductResponseDto> updateProduct(
         @PathVariable(value = "productId") UUID productId, 
         @RequestBody @Valid UpdateProductRequestDto request
@@ -82,7 +82,7 @@ public class ProductController implements ProductApiDocs {
     }
 
     @DeleteMapping("/{productId}")
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<UUID> deleteProduct(
         @PathVariable(value = "productId") UUID productId,
         @RequestBody @Valid UUID brandId
@@ -92,7 +92,7 @@ public class ProductController implements ProductApiDocs {
     }
 
     @DeleteMapping("/")
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<List<UUID>> deleteProducts(
         @RequestBody DeleteProductRequestDto request
     )  {
@@ -102,7 +102,7 @@ public class ProductController implements ProductApiDocs {
     
     // 이미지 삭제 요청 (soft delete 처리)
     @DeleteMapping("/image/{imageId}")
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("hasRole('MASTER')")
     public ApiResponse<UUID> deleteProductImage(
         @PathVariable(value = "imageId") UUID imageId   
     ) {

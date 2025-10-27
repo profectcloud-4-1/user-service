@@ -93,9 +93,9 @@ public class ProductService {
         ProductEntity productEntity = productRepository.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("Prdocut not found"));
 
-        if (productEntity.getBrandId() != bradnId) {
-            throw new IllegalStateException("Product is not owned by your brand.");
-        }
+        // if (productEntity.getBrandId() != bradnId) {
+        //     throw new IllegalStateException("Product is not owned by your brand.");
+        // }
 
         ProductEntity newProductEntity = new ProductEntity(
             productId, productEntity.getBrandId(), categoryId, productName, price, description
@@ -122,9 +122,9 @@ public class ProductService {
         ProductEntity productEntity = productRepository.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("Prdocut not found"));
 
-        if (productEntity.getBrandId() != brandId) {
-            throw new IllegalStateException("Product is not owned by your brand.");
-        }
+        // if (productEntity.getBrandId() != brandId) {
+        //     throw new IllegalStateException("Product is not owned by your brand.");
+        // }
         productRepository.deleteById(productId);
         List<ProductImageEntity> imageEntities = productImageRepository.findByProductId(productId);
         List<UUID> imageIds = imageEntities.stream().map(ProductImageEntity::getId).toList();
@@ -136,14 +136,14 @@ public class ProductService {
         final UUID brandId
     ) {
 
-        for (UUID productId: productIds) {
-            ProductEntity productEntity = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Prdocut not found"));
+        // for (UUID productId: productIds) {
+        //     ProductEntity productEntity = productRepository.findById(productId)
+        //         .orElseThrow(() -> new IllegalArgumentException("Prdocut not found"));
 
-            if (productEntity.getBrandId() != brandId) {
-                throw new IllegalStateException("Product is not owned by your brand.");
-            }
-        }
+        //     if (productEntity.getBrandId() != brandId) {
+        //         throw new IllegalStateException("Product is not owned by your brand.");
+        //     }
+        // }
         productRepository.deleteAllById(productIds);
         
     }
