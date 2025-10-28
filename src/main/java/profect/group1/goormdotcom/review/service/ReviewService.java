@@ -4,7 +4,6 @@ import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import profect.group1.goormdotcom.order.controller.dto.OrderResponseDto;
 import profect.group1.goormdotcom.review.controller.dto.CreateReviewRequestDto;
 import profect.group1.goormdotcom.review.controller.dto.ProductReviewListResponseDto;
 import profect.group1.goormdotcom.review.controller.dto.ReviewResponseDto;
@@ -34,7 +32,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 @Slf4j
-@EnableFeignClients
 @Service
 @RequiredArgsConstructor
 @Transactional

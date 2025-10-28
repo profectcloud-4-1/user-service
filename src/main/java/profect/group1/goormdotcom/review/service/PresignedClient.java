@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.UUID;
 @FeignClient(
-        name = "presigned-service",
-        // TODO: url 경로 수정해야함
-        url = "${feign.presigned.url:http://localhost:8080}"
+        name = "review-to-presigned"
 )
 public interface PresignedClient {
 

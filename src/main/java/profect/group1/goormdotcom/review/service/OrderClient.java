@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
-@FeignClient(name = "order-service", url = "${order.service.url}")
+@FeignClient(name = "review-to-order")
 public interface OrderClient {
     /**
      * userId + productId로 orderId 조회
