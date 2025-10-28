@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.user.infrastructure.mapper;
+package profect.group1.goormdotcom.user.domain.mapper;
 
 import profect.group1.goormdotcom.user.domain.UserAddress;
 import profect.group1.goormdotcom.user.repository.entity.UserAddressEntity;

@@ -46,8 +46,6 @@ public class UserController implements UserApiDocs {
             .name(body.getName())
             .email(body.getEmail())
             .password(body.getPassword())
-            .role(body.getRole())
-            .brandId(body.getBrandId())
             .build();
 
         try {
@@ -126,16 +124,9 @@ public class UserController implements UserApiDocs {
 
     @GetMapping("/me")
     public ApiResponse<MeResponseDto> me(@LoginUser UUID userId) {
-        User user = service.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = service.findById(userId);
 
         return ApiResponse.onSuccess(MeResponseDto.of(user));
-    }
-
-    @GetMapping
-    @PreAuthorize("hasRole('MASTER')")
-    public ApiResponse<ListResponseDto> users(ListRequestDto body) {
-        List<User> users = service.findAllBy(body);
-        return ApiResponse.onSuccess(ListResponseDto.of(users));
     }
 
     @PostMapping("/addresses")
