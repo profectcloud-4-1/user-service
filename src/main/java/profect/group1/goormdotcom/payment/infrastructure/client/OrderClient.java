@@ -9,11 +9,13 @@ import profect.group1.goormdotcom.payment.infrastructure.client.dto.PaymentResul
 import java.util.UUID;
 
 @FeignClient(
-        name = "order-service",
+        name = "payment-to-order",
         fallback = OrderClientFallBack.class
 )
 public interface OrderClient {
-    //TODO: order에서 실제 컨트롤러 url 맞춰서 바꾸기
-    @PostMapping("/internal/orders/{orderId}/payment-result")
-    void notifyPaymentResult(@PathVariable UUID orderId, @RequestBody PaymentResultDto dto);
+    @PostMapping("/api/v1/orders/{orderId}/payment")
+    void notifyPaymentResult(
+            @PathVariable UUID orderId,
+            @RequestBody PaymentResultDto paymentResultDto
+    );
 }

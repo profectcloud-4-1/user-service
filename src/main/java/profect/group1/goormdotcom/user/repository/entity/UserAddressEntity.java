@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.delivery.repository.entity;
+package profect.group1.goormdotcom.user.repository.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -29,11 +29,11 @@ import org.hibernate.annotations.UuidGenerator;
 @ToString
 
 @Entity
-@Table(name = "p_customer_address")
-@Comment("고객 배송지")
+@Table(name = "p_user_address")
+@Comment("사용자 배송지")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
-@SQLDelete(sql = "update p_customer_address set deleted_at = NOW() where id = ?")
-public class CustomerAddressEntity extends BaseEntity {
+@SQLDelete(sql = "update p_user_address set deleted_at = NOW() where id = ?")
+public class UserAddressEntity extends BaseEntity {
 
 	@Id
 	@GeneratedValue
@@ -43,9 +43,9 @@ public class CustomerAddressEntity extends BaseEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 	
-	@Column(name = "customer_id", nullable = false)
-	@Comment("고객 ID (p_user.id)")
-	private UUID customerId;
+	@Column(name = "user_id", nullable = false)
+	@Comment("사용자 ID (p_user.id)")
+	private UUID userId;
 
 	@Column(name = "address", nullable = false)
 	@Comment("주소")
@@ -62,5 +62,9 @@ public class CustomerAddressEntity extends BaseEntity {
 	@Column(name = "name", nullable = false)
 	@Comment("수취인 이름")
 	private String name;
+
+	@Column(name = "delivery_memo")
+	@Comment("배송 메모")
+	private String deliveryMemo;
 	
 }

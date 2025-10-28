@@ -14,8 +14,7 @@ import profect.group1.goormdotcom.product.infrastructure.client.StockService.dto
 import java.util.UUID;
 
 @FeignClient(
-    name = "stock-service",
-    url = "${spring.cloud.openfeign.client.config.stock-service.url}",
+    name = "product-to-stock",
     fallback = StockClientFallback.class,
     configuration = FeignConfig.class
 )
