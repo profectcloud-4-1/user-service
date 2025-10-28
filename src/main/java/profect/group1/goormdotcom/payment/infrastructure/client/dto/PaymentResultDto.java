@@ -5,7 +5,7 @@ import profect.group1.goormdotcom.payment.domain.enums.Status;
 import java.time.OffsetDateTime;
 
 public record PaymentResultDto(
-        Status status,
+        String status,
         Long amount,
         OffsetDateTime approvedAt
 ) {};

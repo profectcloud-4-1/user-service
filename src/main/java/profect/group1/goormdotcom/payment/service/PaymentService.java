@@ -26,6 +26,8 @@ import profect.group1.goormdotcom.payment.domain.Payment;
 import profect.group1.goormdotcom.payment.domain.PaymentHistory;
 import profect.group1.goormdotcom.payment.domain.enums.Status;
 import profect.group1.goormdotcom.payment.domain.enums.TossPaymentStatus;
+import profect.group1.goormdotcom.payment.infrastructure.client.OrderClient;
+import profect.group1.goormdotcom.payment.infrastructure.client.dto.PaymentResultDto;
 import profect.group1.goormdotcom.payment.repository.PaymentHistoryRepository;
 import profect.group1.goormdotcom.payment.repository.PaymentRepository;
 import profect.group1.goormdotcom.payment.repository.entity.PaymentEntity;
@@ -49,6 +51,7 @@ public class PaymentService {
     private final TossPaymentConfig tossPaymentConfig;
     private final ApplicationEventPublisher eventPublisher;
     private final WebClient tossWebClient;
+    private final OrderClient orderClient;
 
     @Transactional
     public Payment requestPayment(PaymentCreateRequestDto dto, User user) {
@@ -171,6 +174,18 @@ public class PaymentService {
         paymentRepository.save(paymentEntity);
         paymentHistoryRepository.save(PaymentHistoryMapper.toEntity(history));
 
+        try {
+            orderClient.notifyPaymentResult(
+                    paymentEntity.getOrderId(),
+                    new PaymentResultDto(
+                            "PAY0001",                //결제 성공
+                            paymentEntity.getAmount(),
+                            response.approvedAt()
+                    )
+            );
+        } catch (Exception e) {
+            log.error("[ORDER SYNC] 주문서비스 결제결과 전달 실패: {}", e.getMessage());
+        }
         return response;
     }
 

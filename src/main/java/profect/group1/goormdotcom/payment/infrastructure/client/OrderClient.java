@@ -13,7 +13,9 @@ import java.util.UUID;
         fallback = OrderClientFallBack.class
 )
 public interface OrderClient {
-    //TODO: order에서 실제 컨트롤러 url 맞춰서 바꾸기
-    @PostMapping("/internal/orders/{orderId}/payment-result")
-    void notifyPaymentResult(@PathVariable UUID orderId, @RequestBody PaymentResultDto dto);
+    @PostMapping("/api/v1/orders/{orderId}/payment")
+    void notifyPaymentResult(
+            @PathVariable UUID orderId,
+            @RequestBody PaymentResultDto paymentResultDto
+    );
 }
