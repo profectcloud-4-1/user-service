@@ -1,10 +1,15 @@
-package profect.group1.goormdotcom.order.client;
+package profect.group1.goormdotcom.order.client.stock;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestDto;
+import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentResponseDto;
 
 import java.util.UUID;
 
@@ -33,9 +38,8 @@ public interface StockClient {
      * @param quantity 차감할 수량
      * @return 차감 결과
      */
-    @PostMapping("/api/v1/stock/decrease/{productId}")
-    StockAdjustmentResponseDto decreaseStock(@PathVariable("productId") UUID productId,
-                          @RequestParam("quantity") int quantity);
+    @PostMapping("/api/v1/stock/decrease")
+    ApiResponse<StockAdjustmentResponseDto> decreaseStocks(@RequestBody StockAdjustmentRequestDto stockAdjustmentRequestDto);
 
     /**
      * 재고 복구 (주문 취소 시)
@@ -44,6 +48,6 @@ public interface StockClient {
      * @return 복구 결과
      */
     @PostMapping("/api/v1/stock/increase/{productId}")
-    StockAdjustmentResponseDto increaseStock(@PathVariable("productId") UUID productId,
+    ApiResponse<StockAdjustmentResponseDto> increaseStock(@PathVariable("productId") UUID productId,
                           @RequestParam("quantity") int quantity);
 }

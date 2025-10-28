@@ -13,7 +13,6 @@ import profect.group1.goormdotcom.order.domain.enums.OrderStatus;
 public class Order {
     private UUID id;
     private UUID customerId;
-    private UUID sellerId;
     private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private LocalDateTime deletedAt;

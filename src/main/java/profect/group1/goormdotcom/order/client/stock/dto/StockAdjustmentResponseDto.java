@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.order.client;
+package profect.group1.goormdotcom.order.client.stock.dto;
 
 import java.util.List;
 import java.util.UUID;

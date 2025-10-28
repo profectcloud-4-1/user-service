@@ -3,6 +3,7 @@ package profect.group1.goormdotcom.order.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.order.client.DeliveryClient;
 import profect.group1.goormdotcom.order.client.PaymentClient; //?
-import profect.group1.goormdotcom.order.client.StockAdjustmentResponseDto;
-import profect.group1.goormdotcom.order.client.StockClient; //?
+import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestDto;
+import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestItemDto;
+import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentResponseDto;
+import profect.group1.goormdotcom.order.client.stock.StockClient;
 import profect.group1.goormdotcom.order.controller.dto.OrderItemDto;
 import profect.group1.goormdotcom.order.controller.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.domain.Order;
@@ -73,25 +76,28 @@ public class OrderService {
     // 1) 주문 생성: 재고 선차감(예약) + 주문(PENDING) -> 주문 완료 하면 
     // 재고 확인 먼저
     @Transactional
-    public Order create(OrderRequestDto req) {
+    public Order create(UUID userId, OrderRequestDto req) {
         // log.info("주문 생성 시작: customerId={}, itemCount={}", req.getCustomerId(), req.getItems().size());
 
         // 재고 차감 (주문 생성 전 선차감)
-        // for (OrderItemDto itemDto : req.getItems()) {
-        //     StockAdjustmentResponseDto stockResponse = stockClient.decreaseStock(itemDto.getProductId(), itemDto.getQuantity());
-        //     if (!stockResponse.status()) {
-        //         log.error("재고 차감 실패: productId={}, quantity={}", itemDto.getProductId(), itemDto.getQuantity());
-        //         throw new IllegalStateException("재고 차감에 실패했습니다. productId=" + itemDto.getProductId());
-        //     }
-        // }
-        // log.info("재고 차감 완료");
+        List<StockAdjustmentRequestItemDto> stockRequestItems = req.getItems().stream()
+            .map(itemDto -> new StockAdjustmentRequestItemDto(itemDto.getProductId(), itemDto.getQuantity()))
+            .toList();
+
+        ApiResponse<StockAdjustmentResponseDto> stockResponse = stockClient.decreaseStocks(
+                new StockAdjustmentRequestDto(stockRequestItems)
+            );
+        if (!stockResponse.getResult().status()) {
+            log.error("재고 차감 실패");
+            throw new IllegalStateException("재고 차감에 실패했습니다.");
+        }
+
+        log.info("재고 차감 완료");
 
         // 아이템 저장 (초기 값을 지정 해주고, 그 초기 값을 바탕으로 받아서 상태값만 변경해서 사용하는 방식으로 진행 )
         // 기존에 내가 하던 방식은 OrderId 를 OrderName과 연동해야 해서 새로운 객체를 받고 그거를 바탕으로 루프 돌아야 하는게 그런방식이 영속성 문제에 걸려서 하지 못한 거였음
         OrderEntity orderEntity = OrderEntity.builder()
-                        .customerId(req.getCustomerId())
-                        // .customerAddressId(customerAddressId)
-                        // .sellerId(req.getSellerId())
+                        .customerId(userId)
                         .totalAmount(req.getTotalAmount())
                         .orderName(req.getOrderName())
                         .status(OrderStatus.PENDING.getCode())
@@ -121,7 +127,7 @@ public class OrderService {
         // address insert
         OrderAddressEntity addressEntity = OrderAddressEntity.builder()
             .orderId(orderEntity.getId())
-            .customerId(req.getCustomerId())
+            .customerId(userId)
             .address(req.getAddress())
             .addressDetail(req.getAddressDetail())
             .zipcode(req.getZipcode())
@@ -187,18 +193,19 @@ public class OrderService {
             cancelResponse.paymentKey(), cancelResponse.status());
         
         // 재고 복구
-        List<OrderProductEntity> products = orderProductRepository.findAll().stream()
-            .filter(p -> p.getOrder().getId().equals(orderId))
-            .toList();
+        // FIXME: stock에서 정한 인터페이스에 맞추어 수정 필요 (251028 김현우)
+        // List<OrderProductEntity> products = orderProductRepository.findAll().stream()
+        //     .filter(p -> p.getOrder().getId().equals(orderId))
+        //     .toList();
         
-        for (OrderProductEntity product : products) {
-            StockAdjustmentResponseDto stockResponse = stockClient.increaseStock(product.getProductId(), product.getQuantity());
-            if (!stockResponse.status()) {
-                log.error("재고 복구 실패: orderId={}, productId={}", orderId, product.getProductId());
-                throw new IllegalStateException("재고 복구에 실패했습니다. productId=" + product.getProductId());
-            }
-        }
-        log.info("재고 복구 완료: orderId={}", orderId);
+        // for (OrderProductEntity product : products) {
+        //     ApiResponse<StockAdjustmentResponseDto> stockResponse = stockClient.increaseStock(product.getProductId(), product.getQuantity());
+        //     if (!stockResponse.getResult().status()) {
+        //         log.error("재고 복구 실패: orderId={}, productId={}", orderId, product.getProductId());
+        //         throw new IllegalStateException("재고 복구에 실패했습니다. productId=" + product.getProductId());
+        //     }
+        // }
+        // log.info("재고 복구 완료: orderId={}", orderId);
 
         //배송 취소 요청
         deliveryClient.cancelDelivery(new DeliveryClient.CancelDeliveryRequest(orderId));

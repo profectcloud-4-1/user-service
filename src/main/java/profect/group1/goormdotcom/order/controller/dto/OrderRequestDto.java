@@ -13,12 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Getter
 public class OrderRequestDto {
 
-    @NotNull
-    private UUID customerId;
-
-    @NotNull
-    private UUID customerAddressId;
-
     private String orderName;
 
     @Min(0)

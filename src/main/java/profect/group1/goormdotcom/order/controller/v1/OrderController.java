@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import profect.group1.goormdotcom.order.controller.dto.OrderRequestDto;
 import profect.group1.goormdotcom.order.service.OrderService;
 import profect.group1.goormdotcom.order.domain.Order;
+import profect.group1.goormdotcom.user.controller.auth.LoginUser;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -22,8 +23,8 @@ public class OrderController {
     //주문생성 
     // *POST /api/v1/orders
     @PostMapping
-    public ResponseEntity<Order> create(@Valid @RequestBody OrderRequestDto req) {
-        Order order = orderService.create(req);
+    public ResponseEntity<Order> create(@Valid @RequestBody OrderRequestDto req, @LoginUser UUID userId) {
+        Order order = orderService.create(userId,req);
         return ResponseEntity.ok(order);
     }
 

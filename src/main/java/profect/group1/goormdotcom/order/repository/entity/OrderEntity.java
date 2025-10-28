@@ -31,10 +31,6 @@ public class OrderEntity extends BaseEntity {
     private UUID id;
     
     private UUID customerId;
-    @Comment("deprecated")
-    private UUID customerAddressId;
-    @Comment("deprecated")
-    private UUID sellerId;
 
     // 재고와 연결
     // private UUID productId;

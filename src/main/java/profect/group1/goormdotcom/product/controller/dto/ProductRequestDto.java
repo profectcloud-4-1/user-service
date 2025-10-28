@@ -11,7 +11,8 @@ import jakarta.validation.constraints.Size;
 public record ProductRequestDto(
     @NotBlank(message = "상품명은 필수입니다.")
     String name,
-    @NotNull(message = "브랜드 ID는 필수입니다. 회원가입시 발급받은 브랜드 ID를 입력해주세요.")
+
+    // NOTE: 브랜드 입점 구조가 아니지만 컬럼을 없애기엔 건드릴 부분이 많을 듯해서 validation만 제거했습니다. (221028 김현우)
     UUID brandId,    
     @NotNull(message = "카테고리 ID는 필수입니다. 카테고리 카탈로그를 참고하여 카테고리 ID를 입력해주세요.")
     UUID categoryId,

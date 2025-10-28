@@ -14,7 +14,6 @@ public class OrderMapper {
         return Order.builder()
             .id(entity.getId())
             .customerId(entity.getCustomerId())
-            .sellerId(entity.getSellerId())
             .status(status)
             .createdAt(entity.getCreatedAt())
             .orderName(entity.getOrderName())
@@ -25,7 +24,6 @@ public class OrderMapper {
         return OrderEntity.builder()
             .id(order.getId())
             .customerId(order.getCustomerId())
-            .sellerId(order.getSellerId())
             .status(order.getStatus().getCode())
             .orderName(order.getOrderName())
             .build();

@@ -66,10 +66,11 @@ public class StockService {
         StockEntity entity;
         for (UUID productId: requestedQuantityMap.keySet()) {
             entity = getStockEntity(productId);
-            entity.decreaseQuantity(requestedQuantityMap.get(productId));
-            
-            // TODO: 동시성 제어 구현 (낙관적 락 및 재확인 구현)
             try {
+                entity.decreaseQuantity(requestedQuantityMap.get(productId));
+            
+                // TODO: 동시성 제어 구현 (낙관적 락 및 재확인 구현)
+            
                 stockRepository.save(entity);
             } catch (Exception e) {
                 return false;
