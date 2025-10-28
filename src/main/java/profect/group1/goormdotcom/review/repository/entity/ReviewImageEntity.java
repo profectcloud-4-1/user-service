@@ -17,11 +17,10 @@ import java.util.UUID;
 public class ReviewImageEntity {
 
     @Id
-    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     // jpa 에러 방지용
-    //TODO: commit 전 삭제
+    //TODO: 나중에 삭제
     @PrePersist
     public void prePersist() {
         if (this.id == null) {
@@ -32,7 +31,7 @@ public class ReviewImageEntity {
         }
     }
 
-    @Column(name = "review_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "review_id", nullable = false)
     private UUID reviewId;
 
     private UUID fileId;

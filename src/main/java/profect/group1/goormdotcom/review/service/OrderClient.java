@@ -13,7 +13,7 @@ public interface OrderClient {
      * userId + productId로 orderId 조회
      */
     @GetMapping("/api/v1/orders/search")
-    UUID getOrderIdByUserAndProduct(@RequestParam("userId") UUID userId,
+    UUID getOrderIdByUserAndProduct(@RequestParam("customerId") UUID customerId,
                                     @RequestParam("productId") UUID productId);
 
 }

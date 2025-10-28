@@ -42,7 +42,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewImageRepository reviewImageRepository;
 
-    // TODO: 다른 도메인 서비스 통신용 (나중에 추가)
+
 
     // 용도 : presigned client 받아오기
 
@@ -62,7 +62,7 @@ public class ReviewService {
 
 
         // 2. OrderService에서 orderId 조회
-        /*UUID orderId;
+        UUID orderId;
         try {
             orderId = orderClient.getOrderIdByUserAndProduct(userId, request.getProductId());
         } catch (FeignException.NotFound e) {
@@ -72,11 +72,11 @@ public class ReviewService {
         // 3. 중복 리뷰 검증 (같은 주문에 대해 이미 리뷰 작성했는지)
         if (reviewRepository.existsByOrderId(orderId)) {
             throw new IllegalStateException("이미 해당 주문에 대한 리뷰를 작성하셨습니다.");
-        }*/
+        }
 
         // 기존 Feign 호출 부분 대신 임시 더미 값 반환
         //TODO: order에 api 넣으면 삭제
-        UUID orderId = UUID.randomUUID(); // 또는 null, 원하는 값
+        //UUID orderId = UUID.randomUUID(); // 또는 null, 원하는 값
 
 
         // 4. Domain 객체 생성 (비즈니스 로직 검증 포함)
