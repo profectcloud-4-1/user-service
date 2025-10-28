@@ -6,20 +6,30 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.StaleObjectStateException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import profect.group1.goormdotcom.stock.config.RetryConfig;
 import profect.group1.goormdotcom.stock.domain.Stock;
+import profect.group1.goormdotcom.stock.domain.exception.InsufficientStockException;
 import profect.group1.goormdotcom.stock.repository.StockRepository;
 import profect.group1.goormdotcom.stock.repository.entity.StockEntity;
 import profect.group1.goormdotcom.stock.repository.mapper.StockMapper;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StockService {
     
+    private final AdjustStockService adjustStockService;
     private final StockRepository stockRepository;
+    private final RetryConfig retryConfig;
 
     private StockEntity getStockEntity(UUID productId) {
         Optional<StockEntity> stockEntity = stockRepository.findByProductId(productId);
@@ -61,25 +71,78 @@ public class StockService {
         return StockMapper.toDomain(entity);
     }
 
-    @Transactional
-    public void decreaseStocks(Map<UUID, Integer> requestedQuantityMap) {
+    // @Transactional
+    // public void decreaseStocks(Map<UUID, Integer> requestedQuantityMap) {
+    //     StockEntity entity;
+    //     for (UUID productId: requestedQuantityMap.keySet()) {
+    //         entity = getStockEntity(productId);
+    //         entity.decreaseQuantity(requestedQuantityMap.get(productId));
+            
+    //         stockRepository.save(entity);
+    //     }
+    // }
+
+    
+    public AdjustStockStatus decreaseStocks(Map<UUID, Integer> requestedQuantityMap) {
         StockEntity entity;
         for (UUID productId: requestedQuantityMap.keySet()) {
-            entity = getStockEntity(productId);
-            entity.decreaseQuantity(requestedQuantityMap.get(productId));
+            int retryCount = 0;
             
-            stockRepository.save(entity);
+            
+            while (true) {
+                try {
+                    entity = getStockEntity(productId);
+                    adjustStockService.tryDecreaseQuantity(entity, requestedQuantityMap.get(productId));
+                    break;
+                } catch (InsufficientStockException e) {
+                    return AdjustStockStatus.INSUFFICIENT;
+                } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e) {
+                    log.info("재고 차감 실패");
+                    retryCount += 1;
+
+                    if (retryCount > retryConfig.maxRetries()) {
+                        return AdjustStockStatus.FAILED;
+                    }
+
+                    try {
+                        Thread.sleep(retryConfig.baseOffMs());
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return AdjustStockStatus.INTERRUPT;
+                    }
+                }
+            }
         }
+        return AdjustStockStatus.SUCCESS;
     }
 
-    @Transactional
-    public void increaseStocks(Map<UUID, Integer> requestedQuantityMap) {
+    public AdjustStockStatus increaseStocks(Map<UUID, Integer> requestedQuantityMap) {
         StockEntity entity;
         for (UUID productId: requestedQuantityMap.keySet()) {
-            entity = getStockEntity(productId);
-            entity.increaseQuantity(requestedQuantityMap.get(productId));
+            int retryCount = 0;
             
-            stockRepository.save(entity);   
+            while (true) {
+                try {
+                    entity = getStockEntity(productId);
+                    adjustStockService.tryIncreaseQuantity(entity, requestedQuantityMap.get(productId));
+                    break;
+                } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e) {
+                    log.info("재고 차감 실패");
+                    retryCount += 1;
+
+                    if (retryCount > retryConfig.maxRetries()) {
+                        return AdjustStockStatus.FAILED;
+                    }
+
+                    try {
+                        Thread.sleep(retryConfig.baseOffMs());
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return AdjustStockStatus.INTERRUPT;
+                    }
+                }
+            }
         }
+        return AdjustStockStatus.SUCCESS;
     }
 }

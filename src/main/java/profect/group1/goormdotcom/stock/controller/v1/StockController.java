@@ -15,6 +15,7 @@ import profect.group1.goormdotcom.stock.controller.dto.StockResponseDto;
 import profect.group1.goormdotcom.stock.controller.mapper.StockDtoMapper;
 import profect.group1.goormdotcom.stock.domain.Stock;
 import profect.group1.goormdotcom.stock.domain.exception.InsufficientStockException;
+import profect.group1.goormdotcom.stock.service.AdjustStockStatus;
 import profect.group1.goormdotcom.stock.service.StockService;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.apiPayload.code.status.ErrorStatus;
@@ -92,39 +93,33 @@ public class StockController implements StockApiDocs {
         for (ProductStockAdjustmentRequestDto dto : stockAdjustmentRequestDto.products()) {
             requestedQuantityMap.put(dto.productId(), dto.requestedStockQuantity());
         }
-        int retryCount = 0;
 
-        while (true) {
-            try {                
-                stockService.decreaseStocks(requestedQuantityMap);
-                break;
-            } catch (InsufficientStockException e) {
-                return ApiResponse.onFailure(ErrorStatus._INSUFFICIENT_STOCK_QUANTITY.getCode() , ErrorStatus._INSUFFICIENT_STOCK_QUANTITY.getMessage(), new StockAdjustmentResponseDto(false, new ArrayList<UUID>(requestedQuantityMap.keySet())));
-            } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e ) {
-                // 재시도 로직
-                retryCount += 1;
-                if (retryCount > retryConfig.maxRetries()) { 
-                    log.error("재고 변경 실패");
-                    return ApiResponse.onFailure(
-                        ErrorStatus._ADJUST_STOCK_FAILED.getCode() , 
-                        ErrorStatus._ADJUST_STOCK_FAILED.getMessage(), 
-                        new StockAdjustmentResponseDto(false, new ArrayList<UUID>(requestedQuantityMap.keySet()))
-                    );
-                }
-
-                // 백오프
-                try {
-                    Thread.sleep(retryConfig.baseOffMs());
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return ApiResponse.onFailure(ErrorStatus._CONFLICT.getCode(), "Interrupted",
-                        new StockAdjustmentResponseDto(false, new ArrayList<>(requestedQuantityMap.keySet())));
-                }
-            } 
-        }
-        return ApiResponse.of(SuccessStatus._OK, new StockAdjustmentResponseDto(true, new ArrayList<UUID>(requestedQuantityMap.keySet())));
+        // 재고 차감 시도
+        AdjustStockStatus status = stockService.decreaseStocks(requestedQuantityMap);
         
+        // 재고 차감 실패시
+        if (status == AdjustStockStatus.FAILED) {
+            return ApiResponse.onFailure(
+                ErrorStatus._ADJUST_STOCK_FAILED.getCode() , 
+                ErrorStatus._ADJUST_STOCK_FAILED.getMessage(), 
+                new StockAdjustmentResponseDto(false, new ArrayList<UUID>(requestedQuantityMap.keySet()))
+            );
+        } else if (status == AdjustStockStatus.INSUFFICIENT) {
+            return ApiResponse.onFailure(
+                ErrorStatus._INSUFFICIENT_STOCK_QUANTITY.getCode() , 
+                ErrorStatus._INSUFFICIENT_STOCK_QUANTITY.getMessage(), 
+                new StockAdjustmentResponseDto(false, new ArrayList<UUID>(requestedQuantityMap.keySet()))
+            );
+        } else if (status == AdjustStockStatus.INTERRUPT) {
+            return ApiResponse.onFailure(
+                ErrorStatus._CONFLICT.getCode(),
+                "Interrupted",
+                new StockAdjustmentResponseDto(false, new ArrayList<>(requestedQuantityMap.keySet()))
+            );
+        } 
         
+        // 재고 차감 성공 시
+        return ApiResponse.of(SuccessStatus._OK, new StockAdjustmentResponseDto(true, new ArrayList<UUID>(requestedQuantityMap.keySet()))); 
     }
 
     @PostMapping("/increase")
@@ -136,36 +131,26 @@ public class StockController implements StockApiDocs {
             requestedQuantityMap.put(dto.productId(), dto.requestedStockQuantity());
         }
 
-        int retryCount = 0;
+        // 재고 증가 시도
+        AdjustStockStatus status = stockService.increaseStocks(requestedQuantityMap);
 
-        while (true) {
-            try {                
-                stockService.increaseStocks(requestedQuantityMap);
-                break;
-            } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e ) {
-                // 재시도 로직
-                retryCount += 1;
-                
-                if (retryCount > retryConfig.maxRetries()) { 
-                    log.error("재고 변경 실패");
-                    return ApiResponse.onFailure(
-                        ErrorStatus._ADJUST_STOCK_FAILED.getCode(), 
-                        ErrorStatus._ADJUST_STOCK_FAILED.getMessage(), 
-                        new StockAdjustmentResponseDto(false, new ArrayList<UUID>(requestedQuantityMap.keySet()))
-                    );
-                }
-
-                // 백오프
-                try {
-                    Thread.sleep(retryConfig.baseOffMs());
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return ApiResponse.onFailure(ErrorStatus._CONFLICT.getCode(), "Interrupted",
-                        new StockAdjustmentResponseDto(false, new ArrayList<>(requestedQuantityMap.keySet())));
-                }
-            } 
-        }
-        return ApiResponse.of(SuccessStatus._OK, new StockAdjustmentResponseDto(true, new ArrayList<UUID>(requestedQuantityMap.keySet())));
+        // 재고 증가 실패시
+        if (status == AdjustStockStatus.FAILED) {
+            return ApiResponse.onFailure(
+                ErrorStatus._ADJUST_STOCK_FAILED.getCode() , 
+                ErrorStatus._ADJUST_STOCK_FAILED.getMessage(), 
+                new StockAdjustmentResponseDto(false, new ArrayList<UUID>(requestedQuantityMap.keySet()))
+            );
+        } else if (status == AdjustStockStatus.INTERRUPT) {
+            return ApiResponse.onFailure(
+                ErrorStatus._CONFLICT.getCode(),
+                ErrorStatus._CONFLICT.getMessage(),
+                new StockAdjustmentResponseDto(false, new ArrayList<>(requestedQuantityMap.keySet()))
+            );
+        } 
+        
+        // 재고 증가 성공 시
+        return ApiResponse.of(SuccessStatus._OK, new StockAdjustmentResponseDto(true, new ArrayList<UUID>(requestedQuantityMap.keySet()))); 
     }
     
 }
