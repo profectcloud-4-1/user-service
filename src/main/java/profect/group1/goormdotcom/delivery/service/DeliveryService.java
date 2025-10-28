@@ -18,20 +18,21 @@ public interface DeliveryService {
 	 * 배송 취소 (즉시취소 가능한 경우만 사용, 불가능한 경우 예외 발생)
 	 * @return 정상처리여부
 	 */
-	public boolean cancel(UUID deliveryId);
-	/** 
-	 * 배송 생성
-	 * @param orderId 주문 ID
-	 * @param customerAddressId 고객 배송지 ID (p_customer_address.id)
-	 * @return 배송 정보
-	 */
-	public Delivery createDelivery(UUID orderId, UUID customerAddressId);
+	public boolean cancel(UUID orderId);
+
 	/** 
 	 * 배송 시작
 	 * @param orderId 주문 ID
+	 * @param customerId 구매자 ID
+	 * @param address 배송지 주소
+	 * @param addressDetail 배송지 상세주소
+	 * @param zipcode 배송지 우편번호
+	 * @param phone 배송지 전화번호
+	 * @param name 수취인 이름
+	 * @param deliveryMemo 배송 메모
 	 * @return 배송 정보
 	 */
-	public Delivery startDelivery(UUID orderId);
+	public Delivery startDelivery(UUID orderId, UUID customerId, String address, String addressDetail, String zipcode, String phone, String name, String deliveryMemo);
 
 	/** 
 	 * 배송 반송 (배송 완료된 경우만 사용, 배송완료가 아닌 경우 예외 발생)
@@ -39,8 +40,6 @@ public interface DeliveryService {
 	 * @return 정상처리여부
 	 */
 	public DeliveryReturn returnDelivery(UUID orderId);
-
-	public boolean deleteDeliveryBeforeStart(UUID orderId);
 
 	/**
 	 * 고객 배송지 목록 조회

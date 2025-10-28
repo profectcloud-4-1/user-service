@@ -29,6 +29,7 @@ public class DeliveryAddressMapper {
             .zipcode(entity.getReceiverZipcode())
             .phone(entity.getReceiverPhone())
             .name(entity.getReceiverName())
+            .deliveryMemo(entity.getDeliveryMemo())
             .build();
     }
 
@@ -40,6 +41,7 @@ public class DeliveryAddressMapper {
             .zipcode(entity.getZipcode())
             .phone(entity.getPhone())
             .name(entity.getName())
+            .deliveryMemo(null)
             .build();
     }
 
@@ -51,6 +53,7 @@ public class DeliveryAddressMapper {
             .zipcode(entity.getZipcode())
             .phone(entity.getPhone())
             .name(entity.getName())
+            .deliveryMemo(null)
             .build();
     }
 }

@@ -47,30 +47,20 @@ public class DeliveryServiceImpl implements DeliveryService {
 		return DeliveryMapper.toDomain(found.get()).canReturn();
 	}
 
-	public Delivery createDelivery(UUID orderId, UUID customerAddressId) {
-		Delivery delivery = this.deliveryManager.createDelivery(orderId, customerAddressId);
-
-		return delivery;
-	}
-		public Delivery startDelivery(UUID orderId) {
-		Delivery delivery = this.deliveryManager.startDelivery(orderId);
+	public Delivery startDelivery(UUID orderId, UUID customerId, String address, String addressDetail, String zipcode, String phone, String name, String deliveryMemo) {
+		Delivery delivery = this.deliveryManager.startDelivery(orderId, customerId, address, addressDetail, zipcode, phone, name, deliveryMemo);
 
 		return delivery;
 	}
 
-	public boolean cancel(UUID deliveryId) {
-		this.deliveryManager.cancel(deliveryId);
+	public boolean cancel(UUID orderId) {
+		this.deliveryManager.cancel(orderId);
 		return true;
 	}
 
 	public DeliveryReturn returnDelivery(UUID orderId) {
 		DeliveryReturn deliveryReturn = this.deliveryManager.returnDelivery(orderId);
 		return deliveryReturn;
-	}
-
-	public boolean deleteDeliveryBeforeStart(UUID orderId) {
-		this.deliveryManager.deleteDeliveryBeforeStart(orderId);
-		return true;
 	}
 
 	public List<DeliveryAddress> getAddressesByCustomerId(UUID customerId) {

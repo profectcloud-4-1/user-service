@@ -37,15 +37,9 @@ public class DeliveryInternalController implements DeliveryInternalApiDocs {
 		return ApiResponse.onSuccess(canReturn);
 	}
 
-    @PostMapping
-	public ApiResponse<Delivery> createDelivery(@RequestBody @Valid CreateDeliveryRequestDto body) {
-		Delivery delivery = this.service.createDelivery(body.getOrderId(), body.getCustomerAddressId());
-		return ApiResponse.onSuccess(delivery);
-	}
-
 	@PostMapping("/start")
 	public ApiResponse<Delivery> startDelivery(@RequestBody @Valid StartDeliveryRequestDto body) {
-		Delivery delivery = this.service.startDelivery(body.getOrderId());
+		Delivery delivery = this.service.startDelivery(body.getOrderId(), body.getCustomerId(), body.getAddress(), body.getAddressDetail(), body.getZipcode(), body.getPhone(), body.getName(), body.getDeliveryMemo());
 		return ApiResponse.onSuccess(delivery);
 	}
 
@@ -93,25 +87,4 @@ public class DeliveryInternalController implements DeliveryInternalApiDocs {
 		}
 	}
 
-	@DeleteMapping
-	public ApiResponse<Boolean> deleteDelivery(@RequestBody @Valid CreateDeliveryRequestDto body) {
-		try {
-			this.service.deleteDeliveryBeforeStart(body.getOrderId());
-			return ApiResponse.onSuccess(true);
-		} catch (Exception e) {
-			String code = ErrorStatus._INTERNAL_SERVER_ERROR.getCode();
-			String message = ErrorStatus._INTERNAL_SERVER_ERROR.getMessage();
-			switch (e.getMessage()) {
-				case "Delivery not found":
-					code = ErrorStatus._NOT_FOUND.getCode();
-					message = "배송 정보를 찾을 수 없습니다.";
-					break;
-				case "Delivery is not created":
-					code = ErrorStatus._FORBIDDEN.getCode();
-					message = "삭제 가능한 배송이 아닙니다.";
-					break;
-			}
-			return ApiResponse.onFailure(String.valueOf(code), message, null);
-		}
-	}
 }

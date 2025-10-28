@@ -25,14 +25,8 @@ import java.lang.Boolean;
 @Tag(name = "Delivery (internal)", description = "배송 API (내부서비스간 통신용)")
 public interface DeliveryInternalApiDocs {
 
-    @Operation(summary = "반송 가능 여부 확인", description = "반송 가능 여부를 확인합니다.")
+    @Operation(summary = "반송 가능 여부 확인")
     ApiResponse<Integer> checkCancellable(@RequestParam UUID orderId);
-
-    @Operation(summary = "배송 생성")
-    ApiResponse<Delivery> createDelivery(@RequestBody CreateDeliveryRequestDto body);
-
-    @Operation(summary = "배송 삭제", description = "결제 실패 등의 주문 전체 트랜잭션 실패 시 호출하는 보상용 api. 배송이 시작되지 않은 경우만 삭제 가능.")
-    ApiResponse<Boolean> deleteDelivery(@RequestBody CreateDeliveryRequestDto body);
 
     @Operation(summary = "배송 시작 요청")
     ApiResponse<Delivery> startDelivery(@RequestBody StartDeliveryRequestDto body);
