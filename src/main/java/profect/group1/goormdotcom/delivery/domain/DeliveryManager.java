@@ -44,6 +44,7 @@ import profect.group1.goormdotcom.delivery.domain.DeliveryReturn;
 import profect.group1.goormdotcom.delivery.repository.mapper.DeliveryReturnMapper;
 import profect.group1.goormdotcom.delivery.repository.mapper.DeliveryReturnAddressMapper;
 import java.util.stream.Collectors;
+import profect.group1.goormdotcom.delivery.infrastructure.client.DeliveryOrderClient;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +62,8 @@ public class DeliveryManager {
     private final DeliveryReturnAddressMapper deliveryReturnAddressMapper;
     private final DeliveryStepHistoryMapper deliveryStepHistoryMapper;
     private final PlatformTransactionManager transactionManager;
+
+    private final DeliveryOrderClient orderClient;
 
     public List<DeliveryAddress> getAddressesByCustomerId(UUID customerId) {
         List<CustomerAddressEntity> entities = this.customerAddressRepo.findAllByCustomerId(customerId);
@@ -360,7 +363,11 @@ public class DeliveryManager {
                         if (stepType == DeliveryReturnStepType.DONE) {
                             ret.setStatus(DeliveryReturnStatus.FINISH.getCode());
                             this.returnRepo.save(ret);
-                            // TODO: order에 반송완료 통보
+
+                            // order에 반송완료 통보
+                            DeliveryEntity deliveryEntity = this.repo.findById(ret.getDeliveryId()).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
+                            UUID orderId = deliveryEntity.getOrderId();
+                            this.orderClient.onReturnCompleted(orderId);
                         }
 
                         DeliveryReturnStepHistoryEntity history = DeliveryReturnStepHistoryEntity.builder()
