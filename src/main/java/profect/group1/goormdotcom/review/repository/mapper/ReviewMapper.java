@@ -15,7 +15,7 @@ public class ReviewMapper {
                 review.getId(),
                 review.getUserId(),
                 review.getProductId(),
-                review.getDeliveryId(),
+                review.getOrderId(),
                 review.getRating(),
                 review.getContent(),
                 review.getCreatedAt(),
@@ -32,36 +32,20 @@ public class ReviewMapper {
 
     /**
      * Entity → Domain
-     * (imageUrl은 별도 조회 후 합성)
+     *
      */
-    public static Review toDomain(ReviewEntity entity, String imageUrl) {
+    public static Review toDomain(ReviewEntity entity) {
         return Review.of(
                 entity.getId(),
                 entity.getUserId(),
                 entity.getProductId(),
-                entity.getDeliveryId(),
+                entity.getOrderId(),
                 entity.getRating(),
                 entity.getContent(),
-                imageUrl,  // 별도 조회한 이미지 URL
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
     }
 
-    /**
-     * Domain의 imageUrl → ReviewImageEntity
-     */
-    public static ReviewImageEntity toImageEntity(UUID reviewId, String imageUrl) {
-        if (imageUrl == null || imageUrl.isBlank()) {
-            return null;  // 이미지 없으면 null 반환
-        }
 
-        return new ReviewImageEntity(
-                UUID.randomUUID(),
-                reviewId,
-                imageUrl,
-                java.time.LocalDateTime.now(),
-                null  // deletedAt은 null
-        );
-    }
 }

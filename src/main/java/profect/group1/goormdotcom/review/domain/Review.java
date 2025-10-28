@@ -7,31 +7,29 @@ public class Review {
     private UUID id;
     private UUID userId;
     private UUID productId;
-    private UUID deliveryId;
+    private UUID orderId;
     private int rating;
     private String content;
-    private String imageUrl;      // null 가능 (이미지 없으면 null)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     // Private 생성자
-    private Review(UUID id, UUID userId, UUID productId, UUID deliveryId,
-                   int rating, String content, String imageUrl,
+    private Review(UUID id, UUID userId, UUID productId, UUID orderId,
+                   int rating, String content,
                    LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.productId = productId;
-        this.deliveryId = deliveryId;
+        this.orderId = orderId;
         this.rating = rating;
         this.content = content;
-        this.imageUrl = imageUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
     // ===== 정적 팩토리 메서드 - 새 리뷰 생성 (POST용) =====
-    public static Review create(UUID userId, UUID productId, UUID deliveryId,
-                                int rating, String content, String imageUrl) {
+    public static Review create(UUID userId, UUID productId, UUID orderId,
+                                int rating, String content) {
         // 비즈니스 규칙 검증
         validateRating(rating);
         validateContent(content);
@@ -41,25 +39,24 @@ public class Review {
                 UUID.randomUUID(),  // 새 ID 생성
                 userId,
                 productId,
-                deliveryId,
+                orderId,
                 rating,
                 content,
-                imageUrl,          // optional
                 now,
                 now
         );
     }
 
     // ===== 정적 팩토리 메서드 - 기존 리뷰 재구성 (DB 조회용) =====
-    public static Review of(UUID id, UUID userId, UUID productId, UUID deliveryId,
-                            int rating, String content, String imageUrl,
+    public static Review of(UUID id, UUID userId, UUID productId, UUID orderId,
+                            int rating, String content,
                             LocalDateTime createdAt, LocalDateTime updatedAt) {
-        return new Review(id, userId, productId, deliveryId,
-                rating, content, imageUrl, createdAt, updatedAt);
+        return new Review(id, userId, productId, orderId,
+                rating, content, createdAt, updatedAt);
     }
 
     // ===== 리뷰 수정 (UPDATE용) =====
-    public Review update(int newRating, String newContent, String newImageUrl) {
+    public Review update(int newRating, String newContent) {
         validateRating(newRating);
         validateContent(newContent);
 
@@ -67,10 +64,9 @@ public class Review {
                 this.id,
                 this.userId,
                 this.productId,
-                this.deliveryId,
+                this.orderId,
                 newRating,
                 newContent,
-                newImageUrl,
                 this.createdAt,
                 LocalDateTime.now()  // updatedAt 갱신
         );
@@ -99,10 +95,9 @@ public class Review {
     public UUID getId() { return id; }
     public UUID getUserId() { return userId; }
     public UUID getProductId() { return productId; }
-    public UUID getDeliveryId() { return deliveryId; }
+    public UUID getOrderId() { return orderId; }
     public int getRating() { return rating; }
     public String getContent() { return content; }
-    public String getImageUrl() { return imageUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

@@ -39,6 +39,7 @@ public class ReviewController {
      * 리뷰 단건 조회
      * GET /api/v1/reviews/{reviewId}
      */
+    /*
     @GetMapping("/{reviewId}")
 
     public ResponseEntity<ReviewResponseDto> getReview(
@@ -46,7 +47,7 @@ public class ReviewController {
     ) {
         ReviewResponseDto response = reviewService.getReview(reviewId);
         return ResponseEntity.ok(response);
-    }
+    }*/
 
     /**
      * 리뷰 수정
@@ -94,20 +95,21 @@ public class ReviewController {
      * GET /api/v1/reviews/products/{productId}
      */
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ProductReviewListResponse> getProductReviews(
+    public ResponseEntity<ProductReviewListResponseDto> getProductReviews(
             @PathVariable UUID productId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy
     ) {
+        // 서비스 호출
         ProductReviewListResponseDto response = reviewService.getProductReviews(
                 productId, page, size, sortBy
         );
-        // TODO: Service 구현 후 연결
-        return ResponseEntity.ok().build();
+
+        // ResponseEntity에 DTO 담아서 반환
+        return ResponseEntity.ok(response);
     }
 }
 
-// ===== 나중에 구현할 DTO들 (임시 선언) =====
 
 

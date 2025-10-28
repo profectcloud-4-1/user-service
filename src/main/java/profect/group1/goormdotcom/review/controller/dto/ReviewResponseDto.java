@@ -18,13 +18,9 @@ public class ReviewResponseDto {
     private int rating;
     private UUID userId;
     private String content;
-    private String imageUrl;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
-
-    //@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    //private LocalDateTime updatedAt;
 
     // POST/PUT/GET(항목별로) 모두 이 Response 재사용
 

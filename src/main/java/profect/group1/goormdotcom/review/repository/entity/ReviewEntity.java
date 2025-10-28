@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table(name = "p_review", indexes = {
         @Index(name = "idx_product_id", columnList = "product_id"),
         @Index(name = "idx_user_id", columnList = "user_id"),
-        @Index(name = "idx_delivery_id", columnList = "delivery_id")
+        @Index(name = "idx_order_id", columnList = "order_id")
 })
 @SQLDelete(sql = "UPDATE p_review SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
@@ -28,8 +28,8 @@ public class ReviewEntity {
     @Column(name = "product_id", nullable = false, columnDefinition = "BINARY(16)")
     private UUID productId;
 
-    @Column(name = "delivery_id", nullable = false, columnDefinition = "BINARY(16)")
-    private UUID deliveryId;
+    @Column(name = "order_id", nullable = false, columnDefinition = "BINARY(16)")
+    private UUID orderId;
 
     @Column(name = "rating", nullable = false)
     private int rating;
@@ -39,6 +39,13 @@ public class ReviewEntity {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -50,13 +57,13 @@ public class ReviewEntity {
     protected ReviewEntity() {}
 
     // 전체 생성자 (재구성용 - DB 조회 시)
-    public ReviewEntity(UUID id, UUID userId, UUID productId, UUID deliveryId,
+    public ReviewEntity(UUID id, UUID userId, UUID productId, UUID orderId,
                         int rating, String content,
                         LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
         this.id = id;
         this.userId = userId;
         this.productId = productId;
-        this.deliveryId = deliveryId;
+        this.orderId = orderId;
         this.rating = rating;
         this.content = content;
         this.createdAt = createdAt;
@@ -68,7 +75,7 @@ public class ReviewEntity {
     public UUID getId() { return id; }
     public UUID getUserId() { return userId; }
     public UUID getProductId() { return productId; }
-    public UUID getDeliveryId() { return deliveryId; }
+    public UUID getOrderId() { return orderId; }
     public int getRating() { return rating; }
     public String getContent() { return content; }
     public LocalDateTime getCreatedAt() { return createdAt; }

@@ -15,7 +15,7 @@ import java.util.UUID;
 public interface ReviewRepository extends JpaRepository<ReviewEntity, UUID> {
 
     // 특정 배송에 대한 리뷰 존재 여부 (중복 체크용)
-    boolean existsByDeliveryId(UUID deliveryId);
+    boolean existsByOrderId(UUID orderId);
 
     // 특정 상품의 리뷰 목록 조회 (페이징)
     Page<ReviewEntity> findByProductId(UUID productId, Pageable pageable);

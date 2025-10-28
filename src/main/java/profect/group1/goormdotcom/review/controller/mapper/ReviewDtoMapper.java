@@ -13,16 +13,15 @@ public class ReviewDtoMapper {
      *
      * @param dto 클라이언트 요청 (productId, rating, content, imageUrl)
      * @param userId 인증된 사용자 ID (Security Context에서)
-     * @param deliveryId 배송 ID (Service에서 조회)
+     * @param orderId 배송 ID (Service에서 조회)
      */
-    public static Review toDomain(CreateReviewRequestDto dto, UUID userId, UUID deliveryId) {
+    public static Review toDomain(CreateReviewRequestDto dto, UUID userId, UUID orderId) {
         return Review.create(
                 userId,              // Context에서
                 dto.getProductId(),  // DTO에서
-                deliveryId,          // Service에서 조회
+                orderId,          // Service에서 조회
                 dto.getRating(),     // DTO에서
-                dto.getContent(),    // DTO에서
-                dto.getImageUrl()    // DTO에서 (optional)
+                dto.getContent()   // DTO에서
         );
     }
 
@@ -37,7 +36,6 @@ public class ReviewDtoMapper {
                 review.getRating(),      // rating
                 review.getUserId(),      // userId
                 review.getContent(),     // content
-                review.getImageUrl(),    // imageUrl
                 review.getCreatedAt()    // createdAt
         );
     }

@@ -16,7 +16,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ProductReviewListResponseDto {
     private UUID productId;
-    private String productName;      // 상품 이름 (외부 서비스 조회)
     private Double averageRating;    // 평균 별점
     private Integer totalReviews;    // 총 리뷰 개수
     private List<ReviewResponseDto> reviews;  // 리뷰 목록
