@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.delivery.controller.v1.internal;
+package profect.group1.goormdotcom.delivery.controller.internal.v1;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
-import profect.group1.goormdotcom.delivery.controller.dto.request.CancelDeliveryRequestDto;
-import profect.group1.goormdotcom.delivery.controller.dto.request.StartDeliveryRequestDto;
+import profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request.CancelDeliveryRequestDto;
+import profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request.StartDeliveryRequestDto;
 import profect.group1.goormdotcom.delivery.domain.Delivery;
 import java.lang.Boolean;
 

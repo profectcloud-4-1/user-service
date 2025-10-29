@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.delivery.controller.v1.external;
+package profect.group1.goormdotcom.delivery.controller.external.v1;
 
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -20,8 +20,8 @@ import profect.group1.goormdotcom.apiPayload.code.status.ErrorStatus;
 import profect.group1.goormdotcom.delivery.service.DeliveryService;
 import profect.group1.goormdotcom.delivery.domain.Delivery;
 import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
-import profect.group1.goormdotcom.delivery.controller.dto.response.DeliveryResponseDto;
-import profect.group1.goormdotcom.delivery.controller.dto.request.CreateAddressRequestDto;
+import profect.group1.goormdotcom.delivery.controller.external.v1.dto.response.DeliveryResponseDto;
+import profect.group1.goormdotcom.delivery.controller.external.v1.dto.request.CreateAddressRequestDto;
 
 @RestController
 @RequestMapping("/api/v1/delivery")

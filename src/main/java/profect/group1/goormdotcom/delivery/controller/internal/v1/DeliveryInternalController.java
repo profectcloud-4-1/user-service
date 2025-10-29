@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.delivery.controller.v1.internal;
+package profect.group1.goormdotcom.delivery.controller.internal.v1;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -6,22 +6,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.delivery.service.DeliveryService;
 import profect.group1.goormdotcom.delivery.domain.Delivery;
-import profect.group1.goormdotcom.delivery.controller.dto.request.StartDeliveryRequestDto;
-import profect.group1.goormdotcom.delivery.controller.dto.request.CancelDeliveryRequestDto;
+import profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request.StartDeliveryRequestDto;
+import profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request.CancelDeliveryRequestDto;
 import profect.group1.goormdotcom.apiPayload.code.status.ErrorStatus;
 import jakarta.validation.Valid;
 import java.util.UUID;
-import java.lang.Boolean;
-import profect.group1.goormdotcom.delivery.controller.v1.internal.DeliveryInternalApiDocs;
+import profect.group1.goormdotcom.delivery.controller.internal.v1.DeliveryInternalApiDocs;
 
 @RestController
 @RequestMapping("/internal/v1/delivery")

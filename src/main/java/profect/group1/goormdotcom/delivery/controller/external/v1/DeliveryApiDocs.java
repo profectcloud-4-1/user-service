@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.delivery.controller.v1.external;
+package profect.group1.goormdotcom.delivery.controller.external.v1;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.delivery.domain.DeliveryAddress;
-import profect.group1.goormdotcom.delivery.controller.dto.response.DeliveryResponseDto;
-import profect.group1.goormdotcom.delivery.controller.dto.request.CreateAddressRequestDto;
+import profect.group1.goormdotcom.delivery.controller.external.v1.dto.response.DeliveryResponseDto;
+import profect.group1.goormdotcom.delivery.controller.external.v1.dto.request.CreateAddressRequestDto;
 
 
 @Tag(name = "Delivery (external)", description = "배송 API (외부 클라이언트 노출용)")

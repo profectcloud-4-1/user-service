@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.delivery.controller.dto.request;
+package profect.group1.goormdotcom.delivery.controller.internal.v1.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
