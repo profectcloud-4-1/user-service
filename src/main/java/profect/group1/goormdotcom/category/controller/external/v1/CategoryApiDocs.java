@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.category.controller.v1;
+package profect.group1.goormdotcom.category.controller.external.v1;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.UUID;
 
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
-import profect.group1.goormdotcom.category.controller.dto.CategoryRequestDto;
-import profect.group1.goormdotcom.category.controller.dto.CategoryResponseDto;
-import profect.group1.goormdotcom.category.controller.dto.CategoryTreeResponseDto;
+import profect.group1.goormdotcom.category.controller.external.v1.dto.CategoryRequestDto;
+import profect.group1.goormdotcom.category.controller.external.v1.dto.CategoryResponseDto;
+import profect.group1.goormdotcom.category.controller.external.v1.dto.CategoryTreeResponseDto;
 
 @Tag(name = "Category", description = "카테고리 API")
 public interface CategoryApiDocs {

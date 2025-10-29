@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.category.controller.v1;
+package profect.group1.goormdotcom.category.controller.external.v1;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,10 +8,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.apiPayload.code.status.SuccessStatus;
-import profect.group1.goormdotcom.category.controller.dto.CategoryRequestDto;
-import profect.group1.goormdotcom.category.controller.dto.CategoryResponseDto;
-import profect.group1.goormdotcom.category.controller.dto.CategoryTreeResponseDto;
-import profect.group1.goormdotcom.category.controller.mapper.CategoryDtoMapper;
+import profect.group1.goormdotcom.category.controller.external.v1.dto.CategoryRequestDto;
+import profect.group1.goormdotcom.category.controller.external.v1.dto.CategoryResponseDto;
+import profect.group1.goormdotcom.category.controller.external.v1.dto.CategoryTreeResponseDto;
+import profect.group1.goormdotcom.category.controller.external.v1.mapper.CategoryDtoMapper;
 import profect.group1.goormdotcom.category.domain.Category;
 import profect.group1.goormdotcom.category.domain.CategoryTree;
 import profect.group1.goormdotcom.category.service.CategoryService;
