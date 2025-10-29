@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.payment.controller.v1;
+package profect.group1.goormdotcom.payment.controller.external.v1;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +9,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
-import profect.group1.goormdotcom.payment.controller.dto.request.*;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentCancelResponseDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentResponseDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentSearchResponseDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentSuccessResponseDto;
-import profect.group1.goormdotcom.payment.controller.mapper.PaymentDtoMapper;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.request.*;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentCancelResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentSearchResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentSuccessResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.mapper.PaymentDtoMapper;
 import profect.group1.goormdotcom.payment.domain.Payment;
 import profect.group1.goormdotcom.payment.domain.enums.Status;
 import profect.group1.goormdotcom.payment.service.PaymentService;

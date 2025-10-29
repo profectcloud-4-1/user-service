@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.payment.controller.dto.request;
+package profect.group1.goormdotcom.payment.controller.external.v1.dto.request;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

@@ -1,9 +1,9 @@
-package profect.group1.goormdotcom.payment.controller.mapper;
+package profect.group1.goormdotcom.payment.controller.external.v1.mapper;
 
 import org.springframework.stereotype.Component;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentResponseDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentSearchResponseDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentSuccessResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentSearchResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentSuccessResponseDto;
 import profect.group1.goormdotcom.payment.domain.Payment;
 import profect.group1.goormdotcom.payment.repository.entity.PaymentEntity;
 

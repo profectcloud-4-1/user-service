@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.payment.controller.v1;
+package profect.group1.goormdotcom.payment.controller.external.v1;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import profect.group1.goormdotcom.payment.controller.dto.request.PaymentSearchRequestDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentCancelResponseDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentResponseDto;
-import profect.group1.goormdotcom.payment.controller.dto.request.PaymentCreateRequestDto;
-import profect.group1.goormdotcom.payment.controller.dto.request.PaymentFailRequestDto;
-import profect.group1.goormdotcom.payment.controller.dto.request.PaymentSuccessRequestDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentSearchResponseDto;
-import profect.group1.goormdotcom.payment.controller.dto.response.PaymentSuccessResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.request.PaymentSearchRequestDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentCancelResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.request.PaymentCreateRequestDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.request.PaymentFailRequestDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.request.PaymentSuccessRequestDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentSearchResponseDto;
+import profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentSuccessResponseDto;
 import profect.group1.goormdotcom.user.domain.User;
 
 import org.springframework.data.domain.Pageable;
@@ -75,7 +75,7 @@ public interface PaymentApiDocs {
             )
     })
     profect.group1.goormdotcom.apiPayload.ApiResponse<PaymentCancelResponseDto> tossPaymentCancel(
-            @ModelAttribute @Valid profect.group1.goormdotcom.payment.controller.dto.request.PaymentCancelRequestDto paymentCancelRequestDto
+            @ModelAttribute @Valid profect.group1.goormdotcom.payment.controller.external.v1.dto.request.PaymentCancelRequestDto paymentCancelRequestDto
     );
 
     @Operation(
@@ -97,7 +97,7 @@ public interface PaymentApiDocs {
                     content = @Content(schema = @Schema(implementation = profect.group1.goormdotcom.apiPayload.ApiResponse.class)))
     })
     profect.group1.goormdotcom.apiPayload.ApiResponse<
-            profect.group1.goormdotcom.payment.controller.dto.response.PaymentSearchResponseDto> searchPayment(
+            profect.group1.goormdotcom.payment.controller.external.v1.dto.response.PaymentSearchResponseDto> searchPayment(
             @ModelAttribute PaymentSearchRequestDto paymentSearchRequestDto,
             Pageable pageable
     );

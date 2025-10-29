@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.payment.controller.dto.response;
+package profect.group1.goormdotcom.payment.controller.external.v1.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;

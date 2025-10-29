@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.payment.controller.dto.response;
+package profect.group1.goormdotcom.payment.controller.external.v1.dto.response;
 
 import profect.group1.goormdotcom.payment.domain.enums.PayType;
 import profect.group1.goormdotcom.payment.domain.enums.Status;
