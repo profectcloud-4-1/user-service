@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.cart.controller.dto;
+package profect.group1.goormdotcom.cart.controller.external.v1.dto;
 
 import java.util.UUID;
 

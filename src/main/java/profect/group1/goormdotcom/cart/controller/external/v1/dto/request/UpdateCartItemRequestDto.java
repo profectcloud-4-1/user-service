@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.cart.controller.dto.request;
+package profect.group1.goormdotcom.cart.controller.external.v1.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

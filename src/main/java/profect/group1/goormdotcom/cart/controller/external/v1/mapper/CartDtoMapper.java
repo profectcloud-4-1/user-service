@@ -1,8 +1,8 @@
-package profect.group1.goormdotcom.cart.controller.mapper;
+package profect.group1.goormdotcom.cart.controller.external.v1.mapper;
 
 import org.springframework.stereotype.Component;
-import profect.group1.goormdotcom.cart.controller.dto.CartItemResponseDto;
-import profect.group1.goormdotcom.cart.controller.dto.CartResponseDto;
+import profect.group1.goormdotcom.cart.controller.external.v1.dto.CartItemResponseDto;
+import profect.group1.goormdotcom.cart.controller.external.v1.dto.CartResponseDto;
 import profect.group1.goormdotcom.cart.domain.Cart;
 import profect.group1.goormdotcom.cart.domain.CartItem;
 

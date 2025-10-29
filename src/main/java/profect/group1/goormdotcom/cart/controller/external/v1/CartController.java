@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.cart.controller.v1;
+package profect.group1.goormdotcom.cart.controller.external.v1;
 
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.apiPayload.code.status.SuccessStatus;
-import profect.group1.goormdotcom.cart.controller.dto.CartResponseDto;
-import profect.group1.goormdotcom.cart.controller.dto.request.AddCartItemRequestDto;
-import profect.group1.goormdotcom.cart.controller.dto.request.DeleteBulkCartItemRequestDto;
-import profect.group1.goormdotcom.cart.controller.dto.request.UpdateCartItemRequestDto;
-import profect.group1.goormdotcom.cart.controller.mapper.CartDtoMapper;
+import profect.group1.goormdotcom.cart.controller.external.v1.dto.CartResponseDto;
+import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.AddCartItemRequestDto;
+import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.DeleteBulkCartItemRequestDto;
+import profect.group1.goormdotcom.cart.controller.external.v1.dto.request.UpdateCartItemRequestDto;
+import profect.group1.goormdotcom.cart.controller.external.v1.mapper.CartDtoMapper;
 import profect.group1.goormdotcom.cart.domain.Cart;
 import profect.group1.goormdotcom.cart.service.CartService;
 import profect.group1.goormdotcom.cart.service.CartServiceImpl;
@@ -41,16 +41,7 @@ public class CartController implements CartApiDocs {
 
 		return ApiResponse.of(SuccessStatus._OK, CartDtoMapper.toCartDto(cart));
 	}
-
-	@PostMapping
-	public ApiResponse<UUID> createCart(
-			@LoginUser UUID userId
-	) {
-		UUID cartId = cartService.createCart(userId);
-
-		return ApiResponse.of(SuccessStatus._CREATED, cartId);
-	}
-
+	
 	@PostMapping("/items")
 	public ApiResponse<CartResponseDto> addItemToCart(
 			@RequestBody @Valid AddCartItemRequestDto request,
