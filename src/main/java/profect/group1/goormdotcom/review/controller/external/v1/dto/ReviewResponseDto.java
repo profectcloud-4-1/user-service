@@ -28,8 +28,8 @@ public class ReviewResponseDto {
     @Schema(description = "리뷰 내용")
     private String content;
 
-    /*@Schema(description = "리뷰 이미지 URL")
-    private String imageUrl;*/
+    @Schema(description = "리뷰 이미지 URL")
+    private String imageUrl;
 
     @Schema(description = "리뷰 작성 일시")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
