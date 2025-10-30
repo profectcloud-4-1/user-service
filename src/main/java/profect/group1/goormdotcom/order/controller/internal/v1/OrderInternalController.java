@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import profect.group1.goormdotcom.order.service.OrderService;
 import profect.group1.goormdotcom.order.domain.Order;
+import profect.group1.goormdotcom.user.controller.auth.LoginUser;
 
 @RestController
 @RequestMapping("/internal/v1/orders")
@@ -20,7 +21,7 @@ public class OrderInternalController {
 
     //결제 완료
     @PostMapping("/{orderId}/payment/success")
-    public ResponseEntity<Order> completePayment(@PathVariable UUID orderId){
+    public ResponseEntity<Order> completePayment(@PathVariable UUID orderId) {
         return ResponseEntity.ok(orderService.completePayment(orderId));
     }
 
