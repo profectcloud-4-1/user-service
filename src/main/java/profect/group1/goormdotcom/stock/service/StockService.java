@@ -98,30 +98,27 @@ public class StockService {
     }
 
     public Boolean increaseStocks(Map<UUID, Integer> requestedQuantityMap) {
-        StockEntity entity;
-        for (UUID productId: requestedQuantityMap.keySet()) {
-            int retryCount = 0;
-            
-            while (true) {
+        int retryCount = 0;
+
+        while (true) {
+            try {
+                // 여러 건의 상품에 대해서 재고 증가 시도
+                adjustStockService.tryIncreaseStocks(requestedQuantityMap);
+                break;
+            } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e) {
+                retryCount += 1;
+
+                if (retryCount > retryConfig.maxRetries()) {
+                    log.info("재고 증가 실패");
+                    // return AdjustStockStatus.FAILED;
+                    throw e;
+                }
+
                 try {
-                    // 여러 건의 상품에 대해서 재고 증가 시도
-                    adjustStockService.tryIncreaseStocks(requestedQuantityMap);
-                    break;
-                } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e) {
-                    retryCount += 1;
-
-                    if (retryCount > retryConfig.maxRetries()) {
-                        log.info("재고 증가 실패");
-                        // return AdjustStockStatus.FAILED;
-                        throw e;
-                    }
-
-                    try {
-                        Thread.sleep(retryConfig.baseOffMs());
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        return false;
-                    }
+                    Thread.sleep(retryConfig.baseOffMs());
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return false;
                 }
             }
         }
