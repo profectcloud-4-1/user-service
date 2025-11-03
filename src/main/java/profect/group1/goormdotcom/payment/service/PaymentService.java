@@ -195,6 +195,7 @@ public class PaymentService {
             orderClient.notifyPaymentSuccessResult(
                     savedEntity.getOrderId(),
                     new PaymentSuccessResultDto(
+                            savedEntity.getUserId(),
                             "PAY0001",                //결제 성공
                             savedEntity.getAmount(),
                             response.approvedAt()

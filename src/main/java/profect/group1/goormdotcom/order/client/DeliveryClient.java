@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.order.client.dto.DeliveryStartResponseDto;
+
 /**
  * 배송 서비스와 통신하는 Feign Client
  * - 배송 요청
@@ -47,7 +49,7 @@ public interface DeliveryClient {
     // ApiResponse<UUID> createDelivery( @RequestBody CreateDeliveryRequest request);
 
     @PostMapping("/internal/v1/delivery/start")
-    ApiResponse<UUID> startDelivery(@RequestBody StartDeliveryRequest request);
+    ApiResponse<DeliveryStartResponseDto> startDelivery(@RequestBody StartDeliveryRequest request);
         /**
      * 배송 취소 요청 (배송 시작 전)
      * @param orderId 주문 ID
@@ -62,7 +64,7 @@ public interface DeliveryClient {
      * @return 반송 요청 성공 여부
      */
     @PostMapping("/internal/v1/delivery/return")
-    Boolean requestReturn(@RequestBody ReturnDeliveryRequest request);
+    ApiResponse<Void> requestReturn(@RequestBody ReturnDeliveryRequest request);
 
     // 취소가능여부 확인
     @GetMapping("/internal/v1/delivery/check/cancellable")

@@ -14,13 +14,13 @@ import java.util.UUID;
         fallback = OrderClientFallBack.class
 )
 public interface OrderClient {
-    @PostMapping("/api/v1/orders/{orderId}/payment/success")
+    @PostMapping("/internal/v1/orders/{orderId}/payment/success")
     void notifyPaymentSuccessResult(
             @PathVariable UUID orderId,
             @RequestBody PaymentSuccessResultDto paymentSuccessResultDto
     );
 
-    @PostMapping("/api/v1/orders/{orderId}/payment/fail")
+    @PostMapping("/internal/v1/orders/{orderId}/payment/fail")
     void notifyPaymentFailResult(
             @PathVariable UUID orderId,
             @RequestBody PaymentFailResultDto paymentFailResultDto

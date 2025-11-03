@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.order.service.OrderService;
 import profect.group1.goormdotcom.order.domain.Order;
+import profect.group1.goormdotcom.user.controller.auth.LoginUser;
 
 @RestController
 @RequestMapping("/internal/v1/orders")
@@ -20,7 +22,7 @@ public class OrderInternalController {
 
     //결제 완료
     @PostMapping("/{orderId}/payment/success")
-    public ResponseEntity<Order> completePayment(@PathVariable UUID orderId){
+    public ResponseEntity<Order> completePayment(@PathVariable UUID orderId) {
         return ResponseEntity.ok(orderService.completePayment(orderId));
     }
 
@@ -32,5 +34,12 @@ public class OrderInternalController {
     public ResponseEntity<Order> failPayment(@PathVariable UUID orderId) {
         return ResponseEntity.ok(orderService.failPayment(orderId));
     }
- 
+
+    //반송 완료
+    @PostMapping("/api/v1/orders/{orderId}/return-completed")
+    public ApiResponse<Boolean> deliveryReturnCompleted(@PathVariable UUID orderId) {
+        orderService.deliveryReturnCompleted(orderId);
+        return ApiResponse.onSuccess(Boolean.TRUE);
+    }
+
 }

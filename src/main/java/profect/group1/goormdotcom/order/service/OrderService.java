@@ -3,7 +3,6 @@ package profect.group1.goormdotcom.order.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
+import profect.group1.goormdotcom.apiPayload.exceptions.handler.OrderHandler;
 import profect.group1.goormdotcom.order.client.DeliveryClient;
 import profect.group1.goormdotcom.order.client.PaymentClient; //?
+import profect.group1.goormdotcom.order.client.dto.DeliveryStartResponseDto;
 import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestDto;
 import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentRequestItemDto;
 import profect.group1.goormdotcom.order.client.stock.dto.StockAdjustmentResponseDto;
@@ -150,18 +151,28 @@ public class OrderService {
         OrderAddressEntity addressEntity = orderAddressRepository.findByOrderId(orderId).orElseThrow(() -> new IllegalStateException("배송지 정보를 찾을 수 없습니다. orderId=" + orderId));
 
         // 배송 시작 
-        ApiResponse<UUID> startResponse = deliveryClient.startDelivery(
-            // TODO: 배송지 정보 추가 필요요
-            new DeliveryClient.StartDeliveryRequest(orderId, orderEntity.getCustomerId(), addressEntity.getAddress(), addressEntity.getAddressDetail(), addressEntity.getZipcode(), addressEntity.getPhone(), addressEntity.getName(), addressEntity.getDeliveryMemo())
-        );
+        try {
+            ApiResponse<DeliveryStartResponseDto> response = deliveryClient.startDelivery(new DeliveryClient.StartDeliveryRequest(
+                    orderId,
+                    addressEntity.getCustomerId(),
+                    addressEntity.getAddress(), addressEntity.getAddressDetail(),
+                    addressEntity.getZipcode(), addressEntity.getPhone(), addressEntity.getName(),
+                    addressEntity.getDeliveryMemo()
+            ));
 
-        if (!startResponse.getCode().equals("COMMON200")) {
-            log.error("배송 시작 실패: orderId={}, code={}, message={}", 
-                orderId, startResponse.getCode(), startResponse.getMessage());
-            appendOrderStatus(orderId, OrderStatus.CANCELLED);
-            throw new IllegalStateException("배송 시작에 실패했습니다: " + startResponse.getMessage());
+            if (!response.getCode().equals("COMMON200")) {
+                log.error("배송 시작 실패: orderId={}, code={}, message={}",
+                        orderId, response.getCode(), response.getMessage());
+                appendOrderStatus(orderId, OrderStatus.CANCELLED);
+                throw new IllegalStateException("배송 시작에 실패했습니다: " + response.getMessage());
+            }
+            log.info("배송 시작 완료: orderId={}, deliveryId={}", orderId, response.getResult());
+
+        } catch (Exception e) {
+            log.warn("[DELIVERY] 배달 생성 실패 - 주문은 결제완료로 유지: {}", e.getMessage());
+            // TODO: 실패 건을 별도 테이블/큐에 적재하여 재시도
         }
-        log.info("배송 시작 완료: orderId={}, deliveryId={}", orderId, startResponse.getResult());
+
 
         // 주문 상태 업데이트       
         appendOrderStatus(orderId, OrderStatus.COMPLETED);
@@ -221,7 +232,7 @@ public class OrderService {
         // TODO: paymentKey를 OrderEntity에 추가하여 주문 생성시 저장 필요
         // 현재는 orderId를 임시로 paymentKey로 사용
         PaymentClient.CancelResponse cancelResponse = paymentClient.cancelPayment(
-            orderId.toString(), // TODO: 실제 paymentKey로 변경 필요
+            orderId, // TODO: 실제 paymentKey로 변경 필요
             "반품"
         );
         log.info("결제 취소 완료: paymentKey={}, status={}", 
@@ -271,7 +282,7 @@ public class OrderService {
         // TODO: paymentKey를 OrderEntity에 추가하여 주문 생성시 저장 필요
         // 현재는 orderId를 임시로 paymentKey로 사용
         PaymentClient.CancelResponse cancelResponse = paymentClient.cancelPayment(
-            orderId.toString(), // TODO: 실제 paymentKey로 변경 필요
+            orderId,
             "반품"
         );
         log.info("결제 취소 완료: paymentKey={}, status={}", 
@@ -321,4 +332,16 @@ public class OrderService {
                 .getId();
     }
 
+    @Transactional
+    public void deliveryReturnCompleted(UUID orderId) {
+        OrderEntity order = findOrderOrThrow(orderId);
+
+        if(order.getStatus().equals(OrderStatus.COMPLETED)) {
+            throw new IllegalStateException("이미 반송된 주문입니다.");
+        }
+
+        appendOrderStatus(orderId, OrderStatus.CANCELLED);
+
+        orderRepository.save(order);
+    }
 }
