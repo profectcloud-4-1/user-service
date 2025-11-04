@@ -1,6 +1,5 @@
 package profect.group1.goormdotcom.user.service.dto;
 
-import profect.group1.goormdotcom.user.domain.enums.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Builder;

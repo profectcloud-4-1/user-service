@@ -7,7 +7,6 @@ import profect.group1.goormdotcom.user.controller.external.v1.dto.request.UserAd
 import profect.group1.goormdotcom.user.repository.UserAddressRepository;
 import profect.group1.goormdotcom.user.domain.mapper.UserAddressMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import java.util.stream.Collectors;
 import profect.group1.goormdotcom.user.repository.entity.UserAddressEntity;

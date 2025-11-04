@@ -3,7 +3,6 @@ package profect.group1.goormdotcom.user.controller.external.v1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.UUID;
@@ -11,10 +10,8 @@ import profect.group1.goormdotcom.user.controller.auth.LoginUser;
 
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.EditRequestDto;
-import profect.group1.goormdotcom.user.controller.external.v1.dto.request.ListRequestDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.LoginRequestDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.RegisterRequestDto;
-import profect.group1.goormdotcom.user.controller.external.v1.dto.response.ListResponseDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.response.LoginResponseDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.response.MeResponseDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.response.RegisterResponseDto;
