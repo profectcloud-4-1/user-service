@@ -1,6 +1,6 @@
 spring:
   application:
-    name: "Goormdotcom-Backend"
+    name: "user-service"
   profiles:
     active: dev
     include: secret
