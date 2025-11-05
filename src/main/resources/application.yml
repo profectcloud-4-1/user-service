@@ -1,6 +1,6 @@
 spring:
   application:
-    name: "user-service"
+    name: goormdotcom-user-service
   profiles:
     active: dev
     include: secret
