@@ -4,13 +4,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
 import org.hibernate.annotations.*;
 
 import java.util.UUID;
 import java.time.LocalDateTime;
-import profect.group1.goormdotcom.user.domain.enums.UserRole;
+
 import jakarta.persistence.Column;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;

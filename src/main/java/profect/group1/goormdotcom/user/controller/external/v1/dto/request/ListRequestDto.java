@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
-import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Getter

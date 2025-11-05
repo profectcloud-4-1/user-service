@@ -2,7 +2,6 @@ package profect.group1.goormdotcom.user.service;
 
 import profect.group1.goormdotcom.user.domain.User;
 import profect.group1.goormdotcom.user.service.dto.CreateUserDto;
-import profect.group1.goormdotcom.user.service.PasswordService;
 import profect.group1.goormdotcom.common.security.JwtTokenProvider;
 
 import org.springframework.stereotype.Service;
