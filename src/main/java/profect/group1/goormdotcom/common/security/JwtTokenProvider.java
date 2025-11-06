@@ -1,13 +1,13 @@
 package profect.group1.goormdotcom.common.security;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
@@ -17,15 +17,24 @@ import profect.group1.goormdotcom.user.domain.enums.UserRole;
 @Component
 public class JwtTokenProvider {
 
-    private final SecretKey secretKey;
+    private final PrivateKey privateKey;
     private final long accessTokenValidityMs;
 
     public JwtTokenProvider(
-            @Value("${JWT_SECRET}") String secret,
-            @Value("${secret.jwt.accessTokenValidityMs:-1}") long accessTokenValidityMs
+            @Value("${spring.jwt.private-key}") String privateKeyPem,
+            @Value("${spring.jwt.accessTokenValidityMs:-1}") long accessTokenValidityMs
     ) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.privateKey = parsePrivateKey(privateKeyPem);
         this.accessTokenValidityMs = accessTokenValidityMs;
+    }
+
+    private PrivateKey parsePrivateKey(String base64) {
+        try {
+            byte[] der = Base64.getDecoder().decode(base64.trim());
+            return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(der));
+        } catch (Exception e) {
+            throw new IllegalStateException("Invalid RSA private key", e);
+        }
     }
 
     public String generateAccessToken(UUID userId, String roleCode) {
@@ -35,10 +44,13 @@ public class JwtTokenProvider {
         System.out.println("role::: " + role.name());
 
         var builder =Jwts.builder()
+                .header().add("kid", "key-2025-11-06-01").and()
                 .subject(userId.toString())
                 .claim("role", role.name())
                 .issuedAt(now)
-                .signWith(secretKey);
+                .issuer("https://public.goorm.store")
+                .audience().add("goormdotcom-aud").and()
+                .signWith(privateKey, Jwts.SIG.RS256);
 
         if (accessTokenValidityMs > 0) {
             Date exp = new Date(now.getTime() + accessTokenValidityMs);
@@ -47,13 +59,5 @@ public class JwtTokenProvider {
 
         return builder.compact();
 
-    }
-
-    public Claims parseClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
     }
 }

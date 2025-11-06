@@ -26,6 +26,9 @@ spring:
             connectTimeout: 5000
             readTimeout: 5000
 
+  jwt:
+    private-key: ${JWT_SECRET}
+
 springdoc:
   use-fqn: true
 
