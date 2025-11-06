@@ -2,8 +2,7 @@ spring:
   application:
     name: "user-service"
   profiles:
-    active: dev
-    include: secret
+    active: ${USER_PROFILE:dev}
 
 management:
   endpoints:

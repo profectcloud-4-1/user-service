@@ -21,7 +21,7 @@ public class JwtTokenProvider {
     private final long accessTokenValidityMs;
 
     public JwtTokenProvider(
-            @Value("${secret.jwt.secret}") String secret,
+            @Value("${JWT_SECRET}") String secret,
             @Value("${secret.jwt.accessTokenValidityMs:-1}") long accessTokenValidityMs
     ) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -39,14 +39,14 @@ public class JwtTokenProvider {
                 .claim("role", role.name())
                 .issuedAt(now)
                 .signWith(secretKey);
-        
+
         if (accessTokenValidityMs > 0) {
             Date exp = new Date(now.getTime() + accessTokenValidityMs);
             builder.expiration(exp);
         }
 
         return builder.compact();
-                
+
     }
 
     public Claims parseClaims(String token) {
@@ -57,5 +57,3 @@ public class JwtTokenProvider {
                 .getPayload();
     }
 }
-
-

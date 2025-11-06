@@ -10,7 +10,8 @@ import org.springframework.http.HttpHeaders;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 
 @FeignClient(
-		name = "user-to-cart",
+		name = "order",
+        url = "${service.order.url}",
 		fallback = CartClientFallBack.class
 )
 public interface CartClient {
