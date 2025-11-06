@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserAddressMapper {
-    public static UserAddress toDomain(UserAddressEntity entity) {
+    public UserAddress toDomain(UserAddressEntity entity) {
         return UserAddress.builder()
             .id(entity.getId())
             .createdAt(entity.getCreatedAt())
@@ -20,7 +20,7 @@ public class UserAddressMapper {
             .build();
     }
 
-    public static UserAddressEntity toEntity(UserAddress domain) {
+    public UserAddressEntity toEntity(UserAddress domain) {
         return UserAddressEntity.builder()
             .id(domain.getId())
             .userId(domain.getUserId())

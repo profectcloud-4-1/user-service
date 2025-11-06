@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 public class UserAddressRequestDto {
     @Schema(description = "주소")
     private String address;
