@@ -9,6 +9,9 @@ on:
 jobs:
   # 테스트
   build:
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
     runs-on: ubuntu-latest
     permissions:
       contents: read

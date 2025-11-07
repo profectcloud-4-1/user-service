@@ -5,8 +5,12 @@ on:
     branches: [ "dev" ]
 
 jobs:
+
   # 테스트
-  build:`
+  build:
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
