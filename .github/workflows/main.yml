@@ -1,0 +1,119 @@
+name: order-service main-branch CI workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # 테스트
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+
+  # 빌드 성공 시 도커 이미지 빌드
+  docker-image:
+    name: Build and Push Docker Image
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write     # OIDC로 AWS 권한 받을 때 필요
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}            # 쓰는 리전으로 변경
+      ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}        # ECR 리포지토리 이름 (미리 만들어둬야 함)
+      IMAGE_STEP: ${{ vars.IMAGE_STEP }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1) GitHub OIDC + IAM Role로 AWS 자격 구성
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # 있으면 secrets 우선, 없으면 vars 사용
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
+
+      # 2) ECR 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 3) Docker meta (이미지/태그 생성 규칙)
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          tags: |
+            # {commit sha}-{step} 규칙
+            type=sha,format=short,suffix=-${{ env.IMAGE_STEP }}
+
+      # 4) Build & Push to ECR
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # 빌드 실패 시 또는 도커 이미지 빌드 실패 시 슬랙 알림
+  notify-slack-on-build-failure:
+    name: Notify Slack on build failure
+    needs:
+      - build
+      - docker-image
+    runs-on: ubuntu-latest
+    # application build 또는 image build가 실패했을 때 실행
+    if: always() && (needs.build.result == 'failure' || needs.docker-image.result == 'failure')
+    steps:
+      - name: Send Slack notification
+        run: |
+          job_name="${{ github.job }}"
+          payload=$(jq -n \
+            --arg repo "${GITHUB_REPOSITORY}" \
+            --arg workflow "${GITHUB_WORKFLOW}" \
+            --arg job "$job_name" \
+            --arg url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            --arg actor "${GITHUB_ACTOR}" \
+            '{
+              "text": ":x: *CI Build Failed*",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":x: *CI Build Failed* in `\($repo)`\n*Workflow*: \($workflow)\n*Job*: \($job)\n*Triggered by*: \($actor)\n<\($url)|View run in GitHub>"
+                  }
+                }
+              ]
+            }')
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}"
