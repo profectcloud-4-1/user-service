@@ -10,7 +10,7 @@ jobs:
   test:
     env:
       SPRING_PROFILES_ACTIVE: test
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_SECRET: ${{ vars.TEST_JWT_SECRET }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -36,8 +36,8 @@ jobs:
         if: failure()
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_S3_UPLOAD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_UPLOAD }}
           aws-region: ap-northeast-2
 
       - name: Upload test report to S3 on failure
@@ -63,7 +63,7 @@ jobs:
       - name: Send Slack message on failure
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          CF_DOMAIN: ${{ secrets.CF_REPORT_DOMAIN }} # 예: ci.goormdotcom.com
+          CF_DOMAIN: ${{ vars.CF_REPORT_DOMAIN }} # 예: ci.goormdotcom.com
         run: |
           REPO="${GITHUB_REPOSITORY}"
           BRANCH_FROM="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"   # PR일 경우: from 브랜치
