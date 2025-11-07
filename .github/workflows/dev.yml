@@ -7,7 +7,7 @@ on:
 jobs:
 
   # 테스트
-  build:
+  test:
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
@@ -28,7 +28,7 @@ jobs:
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew build
+        run: ./gradlew test
 
       - name: Upload test report
         if: always()
@@ -41,7 +41,7 @@ jobs:
   notify-slack-on-build-failure:
     name: Notify Slack on build failure
     needs:
-      - build
+      - test
     runs-on: ubuntu-latest
     # application build 또는 image build가 실패했을 때 실행
     if: failure()
