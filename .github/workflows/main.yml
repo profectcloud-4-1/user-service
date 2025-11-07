@@ -31,6 +31,12 @@ jobs:
       - name: Build with Gradle Wrapper
         run: ./gradlew build
 
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/test
+
   # 빌드 성공 시 도커 이미지 빌드
   docker-image:
     name: Build and Push Docker Image
