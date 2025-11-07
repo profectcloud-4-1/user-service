@@ -12,12 +12,6 @@ spring:
         default_batch_fetch_size: 200
         format_sql: true
 
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
   cloud:
     openfeign:
       client:
@@ -26,29 +20,6 @@ spring:
             connectTimeout: 5000
             readTimeout: 5000
 
-  jwt:
-    private-key: ${JWT_SECRET}
-
-springdoc:
-  use-fqn: true
-
-file:
-  presigned-url-expiration: 3600
-  temp-retention-hours: 48
-
-stock:
-  adjust:
-    retry:
-      maxRetries: 5
-      backOffMs: 50
-
-server:
-  port: ${SERVER_PORT}
-
-service:
-  product:
-    url: ${PRODUCT_SERVICE_URL}
-  order:
-    url: ${ORDER_SERVICE_URL}
-  payment:
-    url: ${PAYMENT_SERVICE_URL}
+logging:
+  level:
+    root: INFO
