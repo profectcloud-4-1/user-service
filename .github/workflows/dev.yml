@@ -32,32 +32,25 @@ jobs:
       - name: Build with Gradle Wrapper
         run: ./gradlew test
 
-  # 테스트 실패시 결과 업로드
-  upload-report-to-s3-on-build-failure:
-    name: Upload a reports to s3 on build failure
-    needs:
-      - test
-    runs-on: ubuntu-latest
-    if: failure()
-    steps:
-      # GitHub ACCESS KEY and SECRET KEY로 자격증명
       - name: Configure AWS credentials
+        if: failure()
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: Verify AWS identity
-        run: aws sts get-caller-identity
-
-      # s3에 테스트 결과 업로드
-      - name: Upload test report to S3
+      - name: Upload test report to S3 on failure
+        if: failure()
         run: |
           RUN_ID=${GITHUB_RUN_ID}
-          aws s3 sync build/reports/tests/test \
-            s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/ \
-            --delete
+          if [ -d build/reports/tests/test ]; then
+            aws s3 sync build/reports/tests/test \
+              s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/ \
+              --delete
+          else
+            echo "No test report directory found."
+          fi
 
   # 테스트 실패 시
   notify-slack-on-build-failure:
@@ -78,19 +71,17 @@ jobs:
           RUN_ID="${GITHUB_RUN_ID}"
           GH_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
           REPORT_URL="https://${CF_DOMAIN}/reports/${RUN_ID}/index.html"
-
-          MESSAGE=$(cat <<EOF
-            ❌ *Build/Test Failed*
-        
-            *Repository* : \`${REPO}\`
-            *Branch* : \`${BRANCH_FROM}\` → \`${BRANCH_TO}\`
-        
-            *GitHub Run*: <${GH_URL}|View in GitHub>
-            *Report* : <${REPORT_URL}|View HTML Report>
-            EOF
-            )
-            
-            payload=$(jq -n --arg text "$MESSAGE" '{ text: $text }')
-            curl -X POST -H 'Content-type: application/json' \
+          
+          MESSAGE="❌ *Build/Test Failed*
+          
+          *Repository* : \`${REPO}\`
+          *Branch* : \`${BRANCH_FROM}\` → \`${BRANCH_TO}\`
+          
+          *GitHub Run*: <${GH_URL}|View in GitHub>
+          *Report* : <${REPORT_URL}|View HTML Report>"
+          
+          payload=$(jq -n --arg text "$MESSAGE" '{ text: $text }')
+          
+          curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
             "$SLACK_WEBHOOK_URL"
