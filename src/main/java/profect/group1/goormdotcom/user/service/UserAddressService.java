@@ -60,6 +60,6 @@ public class UserAddressService {
     }
 
     public List<UserAddress> getAllByUserId(UUID userId) {
-        return repo.findAllByUserId(userId).stream().map(UserAddressMapper::toDomain).collect(Collectors.toList());
+        return repo.findAllByUserId(userId).stream().map(mapper::toDomain).collect(Collectors.toList());
     }
 }

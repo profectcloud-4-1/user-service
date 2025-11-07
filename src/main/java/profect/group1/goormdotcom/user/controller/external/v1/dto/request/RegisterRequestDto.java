@@ -1,4 +1,5 @@
 package profect.group1.goormdotcom.user.controller.external.v1.dto.request;
+import lombok.Builder;
 import lombok.ToString;
 import lombok.Getter;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @ToString
 @Getter
-@AllArgsConstructor
+@Builder
 public class RegisterRequestDto {
     @Schema(description = "이름")
     @NotBlank
