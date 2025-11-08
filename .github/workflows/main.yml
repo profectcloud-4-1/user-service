@@ -11,7 +11,7 @@ jobs:
   build:
     env:
       SPRING_PROFILES_ACTIVE: test
-      JWT_SECRET: ${{ vars.JWT_SECRET }}
+      JWT_SECRET: ${{ vars.TEST_JWT_SECRET }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -112,7 +112,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: failure()                        # 실패했을 때만 실행
+    if: needs.build.result == 'failure'                        # 실패했을 때만 실행
     steps:
       - name: Send Slack message on failure
         env:
@@ -142,11 +142,11 @@ jobs:
 
   # 이미지 빌드 실패 시
   notify-slack-on-image-build-failure:
-    name: Notify Slack on build failure
+    name: Notify Slack on image build failure
     needs:
       - docker-image
     runs-on: ubuntu-latest
-    if: failure()                        # 실패했을 때만 실행
+    if: needs.docker-image.result == 'failure'
     steps:
       - name: Send Slack message on failure
         env:
