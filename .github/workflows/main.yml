@@ -8,7 +8,7 @@ on:
 
 jobs:
   # 테스트
-  test:
+  build:
     env:
       SPRING_PROFILES_ACTIVE: test
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -30,12 +30,32 @@ jobs:
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew test
+        run: ./gradlew build
+
+      - name: Configure AWS credentials
+        if: failure()
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_S3_UPLOAD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_UPLOAD }}
+          aws-region: ap-northeast-2
+
+      - name: Upload test report to S3 on failure
+        if: failure()
+        run: |
+          RUN_ID=${GITHUB_RUN_ID}
+          if [ -d build/reports/tests/test ]; then
+            aws s3 sync build/reports/tests/test \
+              s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/ \
+              --delete
+          else
+            echo "No test report directory found."
+          fi
 
   # 빌드 성공 시 도커 이미지 빌드
   docker-image:
     name: Build and Push Docker Image
-    needs: test
+    needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
@@ -72,7 +92,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}
           tags: |
             # {commit sha}-{step} 규칙
             type=sha,format=short,suffix=-${{ env.IMAGE_STEP }}
@@ -86,45 +106,18 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-    # 테스트 실패시 결과 업로드
-  upload-report-to-s3-on-build-failure:
-    name: Upload a reports to s3 on build failure
-    needs:
-      - test
-    runs-on: ubuntu-latest
-    if: failure()
-    steps:
-      # GitHub ACCESS KEY and SECRET KEY로 자격증명
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Verify AWS identity
-        run: aws sts get-caller-identity
-
-      # s3에 테스트 결과 업로드
-      - name: Upload test report to S3
-        run: |
-          RUN_ID=${GITHUB_RUN_ID}
-          aws s3 sync build/reports/tests/test \
-            s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/ \
-            --delete
-
   # 테스트 실패 시
   notify-slack-on-build-failure:
     name: Notify Slack on build failure
     needs:
-      - test
+      - build
     runs-on: ubuntu-latest
     if: failure()                        # 실패했을 때만 실행
     steps:
       - name: Send Slack message on failure
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          CF_DOMAIN: ${{ secrets.CF_REPORT_DOMAIN }} # 예: ci.goormdotcom.com
+          CF_DOMAIN: ${{ vars.CF_REPORT_DOMAIN }} # 예: ci.goormdotcom.com
         run: |
           REPO="${GITHUB_REPOSITORY}"
           BRANCH_FROM="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"   # PR일 경우: from 브랜치
@@ -133,33 +126,32 @@ jobs:
           GH_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
           REPORT_URL="https://${CF_DOMAIN}/reports/${RUN_ID}/index.html"
 
-          MESSAGE=$(cat <<EOF
-            ❌ *Build/Test Failed*
+          MESSAGE="❌ *Build/Test Failed*
 
-            *Repository* : \`${REPO}\`
-            *Branch* : \`${BRANCH_FROM}\` → \`${BRANCH_TO}\`
+          *Repository* : \`${REPO}\`
+          *Branch* : \`${BRANCH_FROM}\` → \`${BRANCH_TO}\`
 
-            *GitHub Run*: <${GH_URL}|View in GitHub>
-            *Report* : <${REPORT_URL}|View HTML Report>
-            EOF
-            )
+          *GitHub Run*: <${GH_URL}|View in GitHub>
+          *Report* : <${REPORT_URL}|View HTML Report>"
 
-            payload=$(jq -n --arg text "$MESSAGE" '{ text: $text }')
-            curl -X POST -H 'Content-type: application/json' \
+          payload=$(jq -n --arg text "$MESSAGE" '{ text: $text }')
+
+          curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
             "$SLACK_WEBHOOK_URL"
 
-    # 테스트 실패 시
+  # 이미지 빌드 실패 시
   notify-slack-on-image-build-failure:
-    name: Notify Slack on image build failure
+    name: Notify Slack on build failure
     needs:
-      - docker-image
+      - build
     runs-on: ubuntu-latest
     if: failure()                        # 실패했을 때만 실행
     steps:
       - name: Send Slack message on failure
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
         run: |
           REPO="${GITHUB_REPOSITORY}"
           BRANCH_FROM="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"   # PR일 경우: from 브랜치
@@ -167,17 +159,15 @@ jobs:
           RUN_ID="${GITHUB_RUN_ID}"
           GH_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
 
-          MESSAGE=$(cat <<EOF
-            ❌ *Image build Failed*
+          MESSAGE="❌ *Image Build/Push Failed*
 
-            *Repository* : \`${REPO}\`
-            *Branch* : \`${BRANCH_FROM}\` → \`${BRANCH_TO}\`
+          *Repository* : \`${REPO}\`
+          *Branch* : \`${BRANCH_FROM}\` → \`${BRANCH_TO}\`
 
-            *GitHub Run*: <${GH_URL}|View in GitHub>
-            EOF
-            )
+          *GitHub Run*: <${GH_URL}|View in GitHub>"
 
-            payload=$(jq -n --arg text "$MESSAGE" '{ text: $text }')
-            curl -X POST -H 'Content-type: application/json' \
+          payload=$(jq -n --arg text "$MESSAGE" '{ text: $text }')
+
+          curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
             "$SLACK_WEBHOOK_URL"
