@@ -144,7 +144,7 @@ jobs:
   notify-slack-on-image-build-failure:
     name: Notify Slack on build failure
     needs:
-      - build
+      - docker-image
     runs-on: ubuntu-latest
     if: failure()                        # 실패했을 때만 실행
     steps:
