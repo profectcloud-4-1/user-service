@@ -64,7 +64,7 @@ jobs:
 
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}            # 쓰는 리전으로 변경
-      ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}        # ECR 리포지토리 이름 (미리 만들어둬야 함)
+      ECR_REPOSITORY: ${{ vars.AWS_ECR_REPOSITORY }}        # ECR 리포지토리 이름 (미리 만들어둬야 함)
       IMAGE_STEP: ${{ vars.IMAGE_STEP }}
 
     steps:
@@ -77,7 +77,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Verify AWS identity
         run: aws sts get-caller-identity
@@ -92,7 +92,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
           tags: |
             # {commit sha}-{step} 규칙
             type=sha,format=short,suffix=-${{ env.IMAGE_STEP }}
