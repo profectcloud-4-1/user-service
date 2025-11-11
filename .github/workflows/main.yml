@@ -64,7 +64,7 @@ jobs:
 
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}            # 쓰는 리전으로 변경
-      ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}        # ECR 리포지토리 이름 (미리 만들어둬야 함)
+      ECR_REPOSITORY: ${{ vars.AWS_ECR_REPOSITORY }}        # ECR 리포지토리 이름 (미리 만들어둬야 함)
       IMAGE_STEP: ${{ vars.IMAGE_STEP }}
 
     steps:
