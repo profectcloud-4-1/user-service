@@ -4,15 +4,6 @@ spring:
   profiles:
     active: ${USER_PROFILE:dev}
 
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
-  jwt:
-    private-key: ${JWT_SECRET}
-
 management:
   endpoints:
     web:
