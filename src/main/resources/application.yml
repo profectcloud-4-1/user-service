@@ -4,15 +4,6 @@ spring:
   profiles:
     active: ${USER_PROFILE:dev}
 
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
-  jwt:
-    private-key: ${JWT_SECRET}
-
 management:
   endpoints:
     web:
@@ -22,16 +13,6 @@ management:
     health:
       show-details: never
 
-server:
-  port: ${SERVER_PORT}
-
-service:
-  product:
-    url: ${PRODUCT_SERVICE_URL}
-  order:
-    url: ${ORDER_SERVICE_URL}
-  payment:
-    url: ${PAYMENT_SERVICE_URL}
-
-springdoc:
-  use-fqn: true
+logging:
+  level:
+    root: INFO
