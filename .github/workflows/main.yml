@@ -1,4 +1,4 @@
-name: order-service main-branch CI workflow
+name: user-service main-branch CI workflow
 
 on:
   push:
