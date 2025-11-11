@@ -43,10 +43,10 @@ jobs:
       - name: Upload test report to S3 on failure
         if: failure()
         run: |
-          RUN_ID=${GITHUB_RUN_ID}
-          if [ -d build/reports/tests/test ]; then
-            aws s3 sync build/reports/tests/test \
-              s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/ \
+          RUN_ID="${GITHUB_RUN_ID}"
+          if [ -d "build/reports/tests/test" ]; then
+            aws s3 sync "build/reports/tests/test" \
+              "s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/" \
               --delete
           else
             echo "No test report directory found."

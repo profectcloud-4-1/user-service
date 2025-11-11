@@ -11,7 +11,7 @@ jobs:
   build:
     env:
       SPRING_PROFILES_ACTIVE: test
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_SECRET: ${{ vars.TEST_JWT_SECRET }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -43,10 +43,10 @@ jobs:
       - name: Upload test report to S3 on failure
         if: failure()
         run: |
-          RUN_ID=${GITHUB_RUN_ID}
-          if [ -d build/reports/tests/test ]; then
-            aws s3 sync build/reports/tests/test \
-              s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/ \
+          RUN_ID="${GITHUB_RUN_ID}"
+          if [ -d "build/reports/tests/test" ]; then
+            aws s3 sync "build/reports/tests/test" \
+              "s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/" \
               --delete
           else
             echo "No test report directory found."
@@ -77,7 +77,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Verify AWS identity
         run: aws sts get-caller-identity
@@ -92,7 +92,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
           tags: |
             # {commit sha}-{step} 규칙
             type=sha,format=short,suffix=-${{ env.IMAGE_STEP }}
@@ -112,7 +112,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: failure()                        # 실패했을 때만 실행
+    if: ${{ always() && needs.build.result == 'failure' }}                        # 실패했을 때만 실행
     steps:
       - name: Send Slack message on failure
         env:
@@ -142,11 +142,11 @@ jobs:
 
   # 이미지 빌드 실패 시
   notify-slack-on-image-build-failure:
-    name: Notify Slack on build failure
+    name: Notify Slack on image build failure
     needs:
       - docker-image
     runs-on: ubuntu-latest
-    if: failure()                        # 실패했을 때만 실행
+    if: ${{ always() && needs.docker-image.result == 'failure' }}
     steps:
       - name: Send Slack message on failure
         env:
