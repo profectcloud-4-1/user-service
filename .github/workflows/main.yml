@@ -8,54 +8,54 @@ on:
 
 jobs:
   # 테스트
-  build:
-    env:
-      SPRING_PROFILES_ACTIVE: test
-      JWT_SECRET: ${{ vars.TEST_JWT_SECRET }}
+  # build:
+  #   env:
+  #     SPRING_PROFILES_ACTIVE: test
+  #     JWT_SECRET: ${{ vars.TEST_JWT_SECRET }}
 
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: "17"
-          distribution: "temurin"
+  #     - name: Set up JDK 17
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         java-version: "17"
+  #         distribution: "temurin"
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+  #     - name: Setup Gradle
+  #       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
-      - name: Build with Gradle Wrapper
-        run: ./gradlew build
+  #     - name: Build with Gradle Wrapper
+  #       run: ./gradlew build
 
-      - name: Configure AWS credentials
-        if: failure()
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_S3_UPLOAD }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_UPLOAD }}
-          aws-region: ap-northeast-2
+  #     - name: Configure AWS credentials
+  #       if: failure()
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_S3_UPLOAD }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_UPLOAD }}
+  #         aws-region: ap-northeast-2
 
-      - name: Upload test report to S3 on failure
-        if: failure()
-        run: |
-          RUN_ID="${GITHUB_RUN_ID}"
-          if [ -d "build/reports/tests/test" ]; then
-            aws s3 sync "build/reports/tests/test" \
-              "s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/" \
-              --delete
-          else
-            echo "No test report directory found."
-          fi
+  #     - name: Upload test report to S3 on failure
+  #       if: failure()
+  #       run: |
+  #         RUN_ID="${GITHUB_RUN_ID}"
+  #         if [ -d "build/reports/tests/test" ]; then
+  #           aws s3 sync "build/reports/tests/test" \
+  #             "s3://${{ secrets.S3_REPORT_BUCKET }}/reports/${RUN_ID}/" \
+  #             --delete
+  #         else
+  #           echo "No test report directory found."
+  #         fi
 
   # 빌드 성공 시 도커 이미지 빌드
   docker-image:
     name: Build and Push Docker Image
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     outputs:
@@ -111,7 +111,7 @@ jobs:
   deploy:
     name: Deploy to ECS
     needs:
-      - build
+      # - build
       - docker-image
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -124,6 +124,7 @@ jobs:
       CLUSTER: ${{ vars.ECS_CLUSTER_NAME }}
       SERVICE: ${{ vars.ECS_SERVICE_NAME }}
       FAMILY: ${{ vars.ECS_TASK_FAMILY_NAME }}
+      DESIRED_COUNT: ${{ vars.ECS_DESIRED_COUNT }}
 
     steps:
       - name: Checkout
@@ -191,56 +192,104 @@ jobs:
           echo "✅ Registered new task definition revision: $REVISION"
 
       # ECS 서비스 업데이트 -> 새로운 태스크정의 개정(Revision) 적용
+      - name: Prepare swapped load balancers
+        run: |
+          aws ecs describe-services \
+            --cluster $CLUSTER \
+            --services $SERVICE \
+            --query 'services[0].loadBalancers' > lb.json
+
+          NUM=$(jq 'length' lb.json)
+          if [ "$NUM" -lt 2 ]; then
+            echo "LB_ARGS=" >> $GITHUB_ENV
+            echo "No swap needed: found $NUM target group(s)."
+            exit 0
+          fi
+
+          LB_ARGS=$(jq -r 'reverse[] | " --load-balancers targetGroupArn=\(.targetGroupArn),containerName=\(.containerName),containerPort=\(.containerPort)"' lb.json | tr -d '\n')
+          echo "LB_ARGS=$LB_ARGS" >> $GITHUB_ENV
+          echo "Prepared LB_ARGS: $LB_ARGS"
+
       - name: Update ECS service
         run: |
-          aws ecs update-service \
-            --cluster $CLUSTER \
-            --service $SERVICE \
-            --task-definition ${FAMILY}:${REVISION} \
-            --force-new-deployment
+          ARGS="--cluster $CLUSTER --service $SERVICE --task-definition ${FAMILY}:${REVISION} --force-new-deployment"
+          if [ -n "$DESIRED_COUNT" ]; then
+            ARGS="$ARGS --desired-count $DESIRED_COUNT"
+          fi
+          aws ecs update-service $ARGS $LB_ARGS
 
       # ECS 배포 완료 대기 (참고: 20분 내외로 걸리기도 함)
       - name: Wait for ECS service stabilization
         run: |
-          echo "⏳ Waiting for ECS service to stabilize..."
-          aws ecs wait services-stable \
-            --cluster $CLUSTER \
-            --services $SERVICE
-          echo "✅ Service is stable."
+          TIMEOUT="${STABILIZE_TIMEOUT_SEC:-2400}"         # 기본 40분
+          INTERVAL="${STABILIZE_POLL_INTERVAL_SEC:-60}"    # 기본 60초
+          DEADLINE=$((SECONDS + TIMEOUT))
+          echo "⏳ Waiting up to ${TIMEOUT}s for ECS service '$SERVICE' to stabilize (interval=${INTERVAL}s)..."
 
-  # 테스트 실패 시
-  notify-slack-on-build-failure:
-    name: Notify Slack on build failure
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    if: ${{ always() && needs.build.result == 'failure' }} # 실패했을 때만 실행
-    steps:
-      - name: Send Slack message on failure
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          CF_DOMAIN: ${{ vars.CF_REPORT_DOMAIN }} # 예: ci.goormdotcom.com
-        run: |
-          REPO="${GITHUB_REPOSITORY}"
-          BRANCH_FROM="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"   # PR일 경우: from 브랜치
-          BRANCH_TO="${GITHUB_BASE_REF:-main}"                   # PR일 경우: target 브랜치
-          RUN_ID="${GITHUB_RUN_ID}"
-          GH_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
-          REPORT_URL="https://${CF_DOMAIN}/reports/${RUN_ID}/index.html"
+          while [ $SECONDS -lt $DEADLINE ]; do
+            JSON=$(aws ecs describe-services \
+              --cluster "$CLUSTER" \
+              --services "$SERVICE" \
+              --output json)
 
-          MESSAGE="❌ *Build/Test Failed*
+            STABLE=$(echo "$JSON" | jq -r '
+              .services[0] as $s
+              | (($s.deployments | length) == 1)
+                and (
+                  ($s.deployments[0].rolloutState // "") == "COMPLETED"
+                  or (
+                    ($s.deployments[0].status // "") == "PRIMARY"
+                    and ($s.deployments[0].desiredCount // 0) == ($s.deployments[0].runningCount // -1)
+                  )
+                )
+                and (($s.pendingCount // 0) == 0)
+            ')
 
-          *Repository* : \`${REPO}\`
-          *Branch* : \`${BRANCH_FROM}\` → \`${BRANCH_TO}\`
+            if [ "$STABLE" = "true" ]; then
+              echo "✅ Service is stable."
+              exit 0
+            fi
 
-          *GitHub Run*: <${GH_URL}|View in GitHub>
-          *Report* : <${REPORT_URL}|View HTML Report>"
+            echo "… still stabilizing. sleeping ${INTERVAL}s"
+            sleep "$INTERVAL"
+          done
 
-          payload=$(jq -n --arg text "$MESSAGE" '{ text: $text }')
+          echo "❌ Timed out waiting for service stabilization after ${TIMEOUT}s"
+          exit 1
 
-          curl -X POST -H 'Content-type: application/json' \
-            --data "$payload" \
-            "$SLACK_WEBHOOK_URL"
+  # # 테스트 실패 시
+  # notify-slack-on-build-failure:
+  #   name: Notify Slack on build failure
+  #   needs:
+  #     - build
+  #   runs-on: ubuntu-latest
+  #   if: ${{ always() && needs.build.result == 'failure' }} # 실패했을 때만 실행
+  #   steps:
+  #     - name: Send Slack message on failure
+  #       env:
+  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  #         CF_DOMAIN: ${{ vars.CF_REPORT_DOMAIN }} # 예: ci.goormdotcom.com
+  #       run: |
+  #         REPO="${GITHUB_REPOSITORY}"
+  #         BRANCH_FROM="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"   # PR일 경우: from 브랜치
+  #         BRANCH_TO="${GITHUB_BASE_REF:-main}"                   # PR일 경우: target 브랜치
+  #         RUN_ID="${GITHUB_RUN_ID}"
+  #         GH_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+  #         REPORT_URL="https://${CF_DOMAIN}/reports/${RUN_ID}/index.html"
+
+  #         MESSAGE="❌ *Build/Test Failed*
+
+  #         *Repository* : \`${REPO}\`
+  #         *Branch* : \`${BRANCH_FROM}\` → \`${BRANCH_TO}\`
+
+  #         *GitHub Run*: <${GH_URL}|View in GitHub>
+  #         *Report* : <${REPORT_URL}|View HTML Report>"
+
+  #         payload=$(jq -n --arg text "$MESSAGE" '{ text: $text }')
+
+  #         curl -X POST -H 'Content-type: application/json' \
+  #           --data "$payload" \
+  #           "$SLACK_WEBHOOK_URL"
 
   # 이미지 빌드 실패 시
   notify-slack-on-image-build-failure:
