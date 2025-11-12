@@ -17,5 +17,8 @@ import profect.group1.goormdotcom.apiPayload.ApiResponse;
 public interface CartClient {
 
 	@PostMapping("/internal/v1/carts")
-	ApiResponse<UUID> create(@RequestHeader(value = "User-Id") UUID userId);
+	ApiResponse<UUID> create(
+        @RequestHeader(value = "User-Id") UUID userId,
+        @RequestHeader(value = "User-Roles") String userRole
+    );
 }

@@ -55,7 +55,7 @@ public class UserService {
         UUID userId = entity.getId();
 
         // Cart client 수정
-        ApiResponse<UUID> result = cartClient.create(userId);
+        ApiResponse<UUID> result = cartClient.create(userId, role);
         UUID cartId =result.getResult();
         if (cartId == null)
             throw new IllegalStateException("Failed to create cart");
