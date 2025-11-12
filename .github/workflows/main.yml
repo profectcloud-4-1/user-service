@@ -2,9 +2,9 @@ name: user-service main-branch CI workflow
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   # 테스트
@@ -23,8 +23,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
@@ -58,13 +58,15 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      image_uri: ${{ steps.meta.outputs.tags }}
     permissions:
       contents: read
-      id-token: write     # OIDC로 AWS 권한 받을 때 필요
+      id-token: write # OIDC로 AWS 권한 받을 때 필요
 
     env:
-      AWS_REGION: ${{ vars.AWS_REGION }}            # 쓰는 리전으로 변경
-      ECR_REPOSITORY: ${{ vars.AWS_ECR_REPOSITORY }}        # ECR 리포지토리 이름 (미리 만들어둬야 함)
+      AWS_REGION: ${{ vars.AWS_REGION }} # 쓰는 리전으로 변경
+      ECR_REPOSITORY: ${{ vars.AWS_ECR_REPOSITORY }} # ECR 리포지토리 이름 (미리 만들어둬야 함)
       IMAGE_STEP: ${{ vars.IMAGE_STEP }}
 
     steps:
@@ -106,13 +108,85 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+  deploy:
+    name: Deploy to ECS
+    needs:
+      - build
+      - docker-image
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write # OIDC로 AWS 권한 받을 때 필요
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      CLUSTER: ${{ vars.ECS_CLUSTER_NAME }}
+      SERVICE: ${{ vars.ECS_SERVICE_NAME }}
+      FAMILY: ${{ vars.ECS_TASK_FAMILY_NAME }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 현재 태스크정의의 내용 조회 -> taskdef.json 파일에 저장
+      - name: Describe current task definition
+        id: describe
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition $FAMILY \
+            --query 'taskDefinition' > taskdef.json
+
+      # taskdef.json에서 이미지URI를 변경한 new-tastkdef.json 생성 -> new-taskdef.json으로 새로운 태스크정의 개정(Revision) 등록
+      - name: Register new task definition revision
+        id: register
+        run: |
+          IMAGE_URI="${{ needs.docker-image.outputs.image_uri }}"
+          IMAGE_URI="$(echo "$IMAGE_URI" | head -n 1)"
+          jq --arg image "$IMAGE_URI" \
+            '.containerDefinitions[0].image = $image' \
+            taskdef.json > new-taskdef.json
+
+          REVISION=$(aws ecs register-task-definition \
+            --cli-input-json file://new-taskdef.json \
+            --query 'taskDefinition.revision' \
+            --output text)
+
+          echo "REVISION=$REVISION" >> $GITHUB_ENV
+          echo "✅ Registered new task definition revision: $REVISION"
+
+      # ECS 서비스 업데이트 -> 새로운 태스크정의 개정(Revision) 적용
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster $CLUSTER \
+            --service $SERVICE \
+            --task-definition ${FAMILY}:${REVISION} \
+            --force-new-deployment
+
+      # ECS 배포 완료 대기 (참고: 20분 내외로 걸리기도 함)
+      - name: Wait for ECS service stabilization
+        run: |
+          echo "⏳ Waiting for ECS service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster $CLUSTER \
+            --services $SERVICE
+          echo "✅ Service is stable."
+
   # 테스트 실패 시
   notify-slack-on-build-failure:
     name: Notify Slack on build failure
     needs:
       - build
     runs-on: ubuntu-latest
-    if: ${{ always() && needs.build.result == 'failure' }}                        # 실패했을 때만 실행
+    if: ${{ always() && needs.build.result == 'failure' }} # 실패했을 때만 실행
     steps:
       - name: Send Slack message on failure
         env:
@@ -171,3 +245,56 @@ jobs:
           curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
             "$SLACK_WEBHOOK_URL"
+
+  # Slack 알림: 배포 실패 시
+  notify-slack-on-deploy-failure:
+    name: Notify Slack on deploy failure
+    needs:
+      - deploy
+    runs-on: ubuntu-latest
+    if: ${{ always() && needs.deploy.result == 'failure' }} # 실패했을 때만 실행
+    steps:
+      - name: Send Slack message on failure
+        env:
+          SLACK_URL_DEPLOY_RESULT: ${{ secrets.SLACK_URL_DEPLOY_RESULT }}
+        run: |
+          GH_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          MESSAGE="😱 *FAILED - \`${{ vars.ECS_SERVICE_NAME }}\`*
+          $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S')
+          <${GH_URL}|View in GitHub Run>
+          "
+
+          payload=$(jq -n \
+            --arg text "$MESSAGE" \
+            --arg color "danger" \
+            '{ attachments: [ { color: $color, mrkdwn_in: ["text"], text: $text } ] }')
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "$SLACK_URL_DEPLOY_RESULT"
+
+  # Slack 알림: 정상적으로 배포 완료 시
+  notify-slack-on-deploy-success:
+    name: Notify Slack on deploy success
+    needs:
+      - deploy
+    runs-on: ubuntu-latest
+    if: ${{ always() && needs.deploy.result == 'success' }} # 성공했을 때만 실행
+    steps:
+      - name: Send Slack message on success
+        env:
+          SLACK_URL_DEPLOY_RESULT: ${{ secrets.SLACK_URL_DEPLOY_RESULT }}
+        run: |
+          MESSAGE="🥳 *SUCCESS - \`${{ vars.ECS_SERVICE_NAME }}\`*
+          $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S')
+          "
+
+          payload=$(jq -n \
+            --arg text "$MESSAGE" \
+            --arg color "good" \
+            '{ attachments: [ { color: $color, mrkdwn_in: ["text"], text: $text } ] }')
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "$SLACK_URL_DEPLOY_RESULT"
