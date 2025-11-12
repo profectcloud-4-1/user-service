@@ -54,9 +54,8 @@ public class UserService {
         entity = repo.save(entity);
         UUID userId = entity.getId();
 
-        String token = jwtTokenProvider.generateAccessToken(userId, role);
-
-        ApiResponse<UUID> result = cartClient.create("Bearer " + token);
+        // Cart client 수정
+        ApiResponse<UUID> result = cartClient.create(userId);
         UUID cartId =result.getResult();
         if (cartId == null)
             throw new IllegalStateException("Failed to create cart");
