@@ -194,6 +194,7 @@ jobs:
       # ECS 서비스 업데이트 -> 새로운 태스크정의 개정(Revision) 적용
       - name: Prepare swapped load balancers
         run: |
+          # 기존 ECS Service 정보 조회
           aws ecs describe-services \
             --cluster $CLUSTER \
             --services $SERVICE \
