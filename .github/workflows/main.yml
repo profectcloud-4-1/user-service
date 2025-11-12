@@ -150,9 +150,32 @@ jobs:
         run: |
           IMAGE_URI="${{ needs.docker-image.outputs.image_uri }}"
           IMAGE_URI="$(echo "$IMAGE_URI" | head -n 1)"
+
+          # describe 결과에서 register에 필요한 필드만 남기기 (기존 json을 그대로 복사한걸 사용하면 readonly field가 포함되어 있어 에러 발생)
+          jq '{
+            family: .family,
+            taskRoleArn: .taskRoleArn,
+            executionRoleArn: .executionRoleArn,
+            networkMode: .networkMode,
+            containerDefinitions: .containerDefinitions,
+            volumes: .volumes,
+            placementConstraints: .placementConstraints,
+            requiresCompatibilities: .requiresCompatibilities,
+            cpu: .cpu,
+            memory: .memory,
+            tags: .tags,
+            pidMode: .pidMode,
+            ipcMode: .ipcMode,
+            proxyConfiguration: .proxyConfiguration,
+            inferenceAccelerators: .inferenceAccelerators,
+            ephemeralStorage: .ephemeralStorage,
+            runtimePlatform: .runtimePlatform
+          }' taskdef.json > clean-taskdef.json
+
+          # 이미지 URI 교체
           jq --arg image "$IMAGE_URI" \
             '.containerDefinitions[0].image = $image' \
-            taskdef.json > new-taskdef.json
+            clean-taskdef.json > new-taskdef.json
 
           REVISION=$(aws ecs register-task-definition \
             --cli-input-json file://new-taskdef.json \
