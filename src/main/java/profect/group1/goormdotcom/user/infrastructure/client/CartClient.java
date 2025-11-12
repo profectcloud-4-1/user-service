@@ -17,5 +17,5 @@ import profect.group1.goormdotcom.apiPayload.ApiResponse;
 public interface CartClient {
 
 	@PostMapping("/internal/v1/carts")
-	ApiResponse<UUID> create(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization);
+	ApiResponse<UUID> create(@RequestHeader UUID userId);
 }
