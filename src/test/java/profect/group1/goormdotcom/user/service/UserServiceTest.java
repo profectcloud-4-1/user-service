@@ -78,7 +78,6 @@ class UserServiceTest {
         when(passwordService.encrypt("Password123!")).thenReturn("encryptedPassword");
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
-        when(jwtTokenProvider.generateAccessToken(any(UUID.class), any(String.class))).thenReturn("accessToken");
         when(cartClient.create(any(UUID.class))).thenReturn(ApiResponse.onSuccess(UUID.randomUUID()));
 
         // when
