@@ -191,33 +191,14 @@ jobs:
           echo "REVISION=$REVISION" >> $GITHUB_ENV
           echo "✅ Registered new task definition revision: $REVISION"
 
-      # ECS 서비스 업데이트 -> 새로운 태스크정의 개정(Revision) 적용
-      - name: Prepare swapped load balancers
-        run: |
-          # 기존 ECS Service 정보 조회
-          aws ecs describe-services \
-            --cluster $CLUSTER \
-            --services $SERVICE \
-            --query 'services[0].loadBalancers' > lb.json
-
-          NUM=$(jq 'length' lb.json)
-          if [ "$NUM" -lt 2 ]; then
-            echo "LB_ARGS=" >> $GITHUB_ENV
-            echo "No swap needed: found $NUM target group(s)."
-            exit 0
-          fi
-
-          LB_ARGS=$(jq -r 'reverse[] | " --load-balancers targetGroupArn=\(.targetGroupArn),containerName=\(.containerName),containerPort=\(.containerPort)"' lb.json | tr -d '\n')
-          echo "LB_ARGS=$LB_ARGS" >> $GITHUB_ENV
-          echo "Prepared LB_ARGS: $LB_ARGS"
-
+      # ECS 서비스 업데이트
       - name: Update ECS service
         run: |
           ARGS="--cluster $CLUSTER --service $SERVICE --task-definition ${FAMILY}:${REVISION} --force-new-deployment"
           if [ -n "$DESIRED_COUNT" ]; then
             ARGS="$ARGS --desired-count $DESIRED_COUNT"
           fi
-          aws ecs update-service $ARGS $LB_ARGS
+          aws ecs update-service $ARGS
 
       # ECS 배포 완료 대기 (참고: 20분 내외로 걸리기도 함)
       - name: Wait for ECS service stabilization
