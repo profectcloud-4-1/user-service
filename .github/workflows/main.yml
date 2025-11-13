@@ -315,7 +315,7 @@ jobs:
     steps:
       - name: Send Slack message on failure
         env:
-          SLACK_URL_DEPLOY_RESULT: ${{ secrets.SLACK_URL_DEPLOY_RESULT }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           GH_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
@@ -331,7 +331,7 @@ jobs:
 
           curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
-            "$SLACK_URL_DEPLOY_RESULT"
+            "$SLACK_WEBHOOK_URL"
 
   # Slack 알림: 정상적으로 배포 완료 시
   notify-slack-on-deploy-success:
@@ -343,7 +343,8 @@ jobs:
     steps:
       - name: Send Slack message on success
         env:
-          SLACK_URL_DEPLOY_RESULT: ${{ secrets.SLACK_URL_DEPLOY_RESULT }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
         run: |
           MESSAGE="🥳 *SUCCESS - \`${{ vars.ECS_SERVICE_NAME }}\`*
           $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S')
@@ -356,4 +357,4 @@ jobs:
 
           curl -X POST -H 'Content-type: application/json' \
             --data "$payload" \
-            "$SLACK_URL_DEPLOY_RESULT"
+            "$SLACK_WEBHOOK_URL"
