@@ -2,7 +2,7 @@
 <configuration scan="true">
 
     <!-- 애플리케이션 종료 시 버퍼 로그 flush 보장 -->
-    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+    <shutdownHook class="ch.qos.logback.core.hook.DefaultShutdownHook"/>
 
     <property name="LOG_DIR"   value="logs"/>
     <property name="LOG_FILE"  value="application.log"/>
