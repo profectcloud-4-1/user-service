@@ -2,7 +2,23 @@ spring:
   application:
     name: "user-service"
   profiles:
-    active: ${USER_PROFILE:dev}
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+  jwt:
+    private-key: ${JWT_SECRET}
 
 management:
   endpoints:
@@ -12,3 +28,17 @@ management:
   endpoint:
     health:
       show-details: never
+
+springdoc:
+  use-fqn: true
+
+server:
+  port: ${SERVER_PORT}
+
+service:
+  product:
+    url: ${PRODUCT_SERVICE_URL}
+  order:
+    url: ${ORDER_SERVICE_URL}
+  payment:
+    url: ${PAYMENT_SERVICE_URL}
