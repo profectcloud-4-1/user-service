@@ -1,8 +1,7 @@
-package profect.group1.goormdotcom.common.logging;
+package profect.group1.goormdotcom.common.log;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
