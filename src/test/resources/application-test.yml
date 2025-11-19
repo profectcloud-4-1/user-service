@@ -8,6 +8,17 @@ spring:
     username: sa
     password:
 
+  data:
+    redis:
+      host: localhost
+      port: 6537
+      password: 1234
+      database: 0
+      timeout: 5s
+      connect-timeout: 5s
+      repositories:
+        enabled: false
+
   jwt:
     private-key: testJwt
     issuer: testIssuer
