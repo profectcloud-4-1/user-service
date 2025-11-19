@@ -8,6 +8,7 @@ import io.jsonwebtoken.JwtParser;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import profect.group1.goormdotcom.user.domain.enums.UserRole;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -76,13 +77,18 @@ public class JwtTokenProvider {
 
     // ==================== 토큰 생성 ====================
 
-    public String generateAccessToken(UUID userId, String role, String jti) {
+    public String generateAccessToken(UUID userId, String roleCode, String jti) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessTokenExpirationMs);
 
+        UserRole userRole = UserRole.fromCode(roleCode);
+        if (userRole == null) {
+            throw new IllegalArgumentException("Unknown role code: " + roleCode);
+        }
+
         return Jwts.builder()
                 .subject(userId.toString())
-                .claim("role", role)
+                .claim("role", userRole.name())
                 .claim("iss", issuer)      // issuer
                 .claim("aud", audience)    // audience
                 .id(jti)
@@ -92,13 +98,18 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String generateRefreshToken(UUID userId, String role, String jti) {
+    public String generateRefreshToken(UUID userId, String roleCode, String jti) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshTokenExpirationMs);
 
+        UserRole userRole = UserRole.fromCode(roleCode);
+        if (userRole == null) {
+            throw new IllegalArgumentException("Unknown role code: " + roleCode);
+        }
+
         return Jwts.builder()
                 .subject(userId.toString())
-                .claim("role", role)
+                .claim("role", userRole.name())
                 .claim("iss", issuer)
                 .claim("aud", audience)
                 .id(jti)
@@ -163,9 +174,17 @@ public class JwtTokenProvider {
         return UUID.fromString(claims.getSubject()); // sub
     }
 
-    public String getRole(String token) {
+    public String getRoleName(String token) {
         Claims claims = parseClaimsWithoutVerify(token);
         return claims.get("role", String.class);
+    }
+    public UserRole getRoleEnum(String token) {
+        String name = getRoleName(token);
+        return UserRole.valueOf(name);
+    }
+
+    public String getRoleCode(String token) {
+        return getRoleEnum(token).getCode();
     }
 
     public String getJti(String token) {

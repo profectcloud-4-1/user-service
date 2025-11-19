@@ -85,19 +85,22 @@ public class UserService {
 
         entity.setLastLoginAt(LocalDateTime.now());
         repo.save(entity);
-        String role = entity.getRole();
+        String roleCode = entity.getRole();
+        UserRole userRole = UserRole.fromCode(roleCode);
+        String roleName = userRole.name();
+
         UUID userId = entity.getId();
 
         String accessJti = UUID.randomUUID().toString();
         String refreshJti = UUID.randomUUID().toString();
 
-        String accessToken = jwtTokenProvider.generateAccessToken(userId, role, accessJti);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(userId, role, refreshJti);
+        String accessToken = jwtTokenProvider.generateAccessToken(userId, roleCode, accessJti);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(userId, roleCode, refreshJti);
 
         long accessTtl = jwtTokenProvider.getAccessTokenExpirationSeconds();
         long refreshTtl = jwtTokenProvider.getRefreshTokenExpirationSeconds();
 
-        String value = userId + ":" + role;
+        String value = userId + ":" + roleName;
 
         // Redis 장애 시 저장X, Token만 반환
         try {
@@ -124,7 +127,10 @@ public class UserService {
     public LoginTokensDto refresh(String refreshToken) {
         // 1) JWT 구조 검증 + 정보 추출
         UUID userId = jwtTokenProvider.getUserId(refreshToken);
-        String role = jwtTokenProvider.getRole(refreshToken);
+        String roleCode = jwtTokenProvider.getRoleCode(refreshToken);
+        UserRole userRole = UserRole.fromCode(roleCode);
+        String roleName = userRole.name();
+
         String refreshJti = jwtTokenProvider.getJti(refreshToken);
 
         String key = REFRESH_PREFIX + refreshJti;
@@ -156,13 +162,13 @@ public class UserService {
         String newAccessJti = UUID.randomUUID().toString();
         String newRefreshJti = UUID.randomUUID().toString();
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, role, newAccessJti);
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, role, newRefreshJti);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, roleCode, newAccessJti);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, roleCode, newRefreshJti);
 
         long accessTtl = jwtTokenProvider.getAccessTokenExpirationSeconds();
         long refreshTtl = jwtTokenProvider.getRefreshTokenExpirationSeconds();
 
-        String newValue = userId + ":" + role;
+        String newValue = userId + ":" + roleName;
 
         // 5) Redis에 새 토큰 저장 (Redis 정상일 때만)
         if (!redisError) {
