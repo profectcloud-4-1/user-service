@@ -34,6 +34,8 @@ public class RedisConfig {
                         .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
                         .build())
                 .commandTimeout(Duration.ofSeconds(2))
+                .useSsl()
+                .disablePeerVerification()
                 .build();
 
         RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration();
