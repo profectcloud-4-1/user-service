@@ -7,7 +7,10 @@ spring:
 
   jwt:
     private-key: ${JWT_SECRET}
-
+    issuer: testIssuer
+    audience: testAud
+    access-expiration-ms: 3600000
+    refresh-expiration-ms: 86400000
   jpa:
     hibernate:
       ddl-auto: create-drop   # 테스트할 때마다 스키마 새로 만들고 끝나면 드롭
