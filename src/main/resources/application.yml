@@ -10,6 +10,17 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE}
+      timeout: 5s
+      connect-timeout: 5s
+      repositories:
+        enabled: false
+
   cloud:
     openfeign:
       client:
@@ -18,7 +29,11 @@ spring:
             connectTimeout: 5000
             readTimeout: 5000
   jwt:
+    issuer: ${JWT_ISSUER}
+    audience: ${JWT_AUDIENCE}
     private-key: ${JWT_SECRET}
+    access-expiration-ms: ${JWT_ACCESS_EXPIRATION}        # 30분
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION}
 
 management:
   endpoints:

@@ -2,12 +2,10 @@ package profect.group1.goormdotcom.user.controller.external.v1;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import profect.group1.goormdotcom.user.controller.external.v1.dto.request.*;
 import profect.group1.goormdotcom.user.service.UserService;
-import profect.group1.goormdotcom.user.controller.external.v1.dto.request.RegisterRequestDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.response.MeResponseDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.response.RegisterResponseDto;
-import profect.group1.goormdotcom.user.controller.external.v1.dto.request.EditRequestDto;
-import profect.group1.goormdotcom.user.controller.external.v1.dto.request.LoginRequestDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.response.LoginResponseDto;
 import profect.group1.goormdotcom.user.service.dto.CreateUserDto;
 import profect.group1.goormdotcom.user.domain.User;
@@ -27,8 +25,8 @@ import lombok.AccessLevel;
 import profect.group1.goormdotcom.user.controller.auth.LoginUser;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.response.UserAddressListResponseDto;
 import profect.group1.goormdotcom.user.domain.UserAddress;
-import profect.group1.goormdotcom.user.controller.external.v1.dto.request.UserAddressRequestDto;
 import profect.group1.goormdotcom.user.service.UserAddressService;
+import profect.group1.goormdotcom.user.service.dto.LoginTokensDto;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -70,21 +68,14 @@ public class UserController implements UserApiDocs {
 
     @PostMapping("/login")
     public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequestDto body) {
-        try {
-            String token = service.login(body.getEmail(), body.getPassword());
-            return ApiResponse.onSuccess(LoginResponseDto.of(token));
-        } catch (Exception e) {
-            String code = ErrorStatus._INTERNAL_SERVER_ERROR.getCode();
-            String message = ErrorStatus._INTERNAL_SERVER_ERROR.getMessage();
+        LoginTokensDto tokens = service.login(body.getEmail(), body.getPassword());
+        return ApiResponse.onSuccess(LoginResponseDto.of(tokens.getAccessToken(), tokens.getRefreshToken()));
+    }
 
-            switch (e.getMessage()) {
-                case "Invalid credentials":
-                    code = ErrorStatus.AUTH_NOT_EXISTS.getCode();
-                    message = ErrorStatus.AUTH_NOT_EXISTS.getMessage();
-                    break;
-            }
-            return ApiResponse.onFailure(String.valueOf(code), message, null);
-        }
+    @PostMapping("/refresh")
+    public ApiResponse<LoginResponseDto> refresh(@RequestBody RefreshTokenRequestDto body) {
+        LoginTokensDto tokens = service.refresh(body.getRefreshToken());
+        return ApiResponse.onSuccess(LoginResponseDto.of(tokens.getAccessToken(), tokens.getRefreshToken()));
     }
 
     @PostMapping("/leave")

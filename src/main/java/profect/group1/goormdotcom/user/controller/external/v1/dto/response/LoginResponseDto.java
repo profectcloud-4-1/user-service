@@ -11,7 +11,13 @@ public class LoginResponseDto {
     @Schema(description = "액세스 토큰 (JWT)")
     @NotBlank
     private String accessToken;
-    public static LoginResponseDto of(String token) { return new LoginResponseDto(token); }
+
+    @Schema(description = "리프레시 토큰")
+    @NotBlank
+    private String refreshToken;
+    public static LoginResponseDto of(String accessToken, String refreshToken) {
+        return new LoginResponseDto(accessToken, refreshToken);
+    }
 }
 
 
