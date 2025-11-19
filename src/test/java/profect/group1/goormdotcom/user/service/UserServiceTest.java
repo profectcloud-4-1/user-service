@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.common.security.JwtTokenProvider;
 import profect.group1.goormdotcom.user.domain.User;
@@ -16,6 +18,7 @@ import profect.group1.goormdotcom.user.infrastructure.client.CartClient;
 import profect.group1.goormdotcom.user.repository.UserRepository;
 import profect.group1.goormdotcom.user.repository.entity.UserEntity;
 import profect.group1.goormdotcom.user.service.dto.CreateUserDto;
+import profect.group1.goormdotcom.user.service.dto.LoginTokensDto;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,9 +26,14 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.concurrent.TimeUnit;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -48,6 +56,12 @@ class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private StringRedisTemplate redisTemplate;
+
+    @Mock
+    private ValueOperations<String, String> valueOperations;
+
     private CreateUserDto createUserDto;
     private UserEntity userEntity;
     private User user;
@@ -61,6 +75,7 @@ class UserServiceTest {
                 .email("test@example.com")
                 .password("encryptedPassword")
                 .name("testuser")
+                .role(UserRole.CUSTOMER.getCode())
                 .build();
 
         user = User.builder()
@@ -122,15 +137,24 @@ class UserServiceTest {
 
         when(passwordService.isMatch("Password123!", "encryptedPassword"))
                 .thenReturn(true);
+        
+        when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
 
-        when(jwtTokenProvider.generateAccessToken(any(UUID.class), isNull()))
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        doNothing().when(valueOperations).set(anyString(), anyString(), anyLong(), any(TimeUnit.class));
+
+        when(jwtTokenProvider.generateAccessToken(any(UUID.class), any(String.class), any(String.class)))
                 .thenReturn("accessToken");
+        when(jwtTokenProvider.generateRefreshToken(any(UUID.class), any(String.class), any(String.class)))
+                .thenReturn("refreshToken");
+        when(jwtTokenProvider.getAccessTokenExpirationSeconds()).thenReturn(3600L);
+        when(jwtTokenProvider.getRefreshTokenExpirationSeconds()).thenReturn(86400L);
 
         // when
-        String token = userService.login("test@example.com", "Password123!");
+        LoginTokensDto tokens = userService.login("test@example.com", "Password123!");
 
         // then
-        assertThat(token).isEqualTo("accessToken");
+        assertThat(tokens.getAccessToken()).isEqualTo("accessToken");
     }
 
     @Test

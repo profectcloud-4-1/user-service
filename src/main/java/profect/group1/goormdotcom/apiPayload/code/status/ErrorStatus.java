@@ -21,6 +21,7 @@ public enum ErrorStatus implements BaseErrorCode {
     AUTH_EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "AUTH409", "이미 존재하는 이메일입니다"),
     AUTH_NOT_EXISTS(HttpStatus.NOT_FOUND, "AUTH404", "존재하지 않는 사용자입니다"),
     INSUFFICIENT_ROLE(HttpStatus.FORBIDDEN, "AUTH403", "요청에 필요한 권한이 없습니다."),
+    AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401", "유효하지 않은 토큰입니다."),
 
     COMMON_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON404", "존재하지 않는 공통 코드입니다"),
     COMMON_CODE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "COMMON409", "이미 존재하는 공통 코드입니다"),

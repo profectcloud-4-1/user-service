@@ -1,4 +1,4 @@
-package profect.group1.goormdotcom.user.controller.external.v1;
+package profect.group1.goormdotcom.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import profect.group1.goormdotcom.apiPayload.ApiResponse;
 import profect.group1.goormdotcom.apiPayload.code.status.ErrorStatus;
 import profect.group1.goormdotcom.user.controller.auth.LoginUser;
+import profect.group1.goormdotcom.user.controller.external.v1.UserController;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.EditRequestDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.LoginRequestDto;
 import profect.group1.goormdotcom.user.controller.external.v1.dto.request.RegisterRequestDto;
@@ -23,12 +24,14 @@ import profect.group1.goormdotcom.user.domain.UserAddress;
 import profect.group1.goormdotcom.user.service.UserAddressService;
 import profect.group1.goormdotcom.user.service.UserService;
 import profect.group1.goormdotcom.user.service.dto.CreateUserDto;
+import profect.group1.goormdotcom.user.service.dto.LoginTokensDto;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -139,34 +142,32 @@ class UserControllerTest {
     @DisplayName("로그인 성공 시 반환된 액세스 토큰이 서비스에서 받은 토큰과 같다")
     void login_success() {
         // given
-        String token = "jwt-token";
+        LoginTokensDto loginTokens = new LoginTokensDto("jwt-access-token", "jwt-refresh-token");
         when(userService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword()))
-                .thenReturn(token);
+                .thenReturn(loginTokens);
 
         // when
         ApiResponse<LoginResponseDto> response = userController.login(loginRequestDto);
 
         // then
         assertThat(response.getResult().getAccessToken())
-                .isEqualTo(token);
+                .isEqualTo(loginTokens.getAccessToken());
 
         verify(userService, times(1))
                 .login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
     }
 
     @Test
-    @DisplayName("로그인 - 잘못된 자격 증명 시 AUTH_NOT_EXISTS 코드 반환")
+    @DisplayName("로그인 - 잘못된 자격 증명 시 예외 발생")
     void login_fail_invalidCredentials() {
         // given
         when(userService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword()))
-                .thenThrow(new RuntimeException("Invalid credentials"));
+                .thenThrow(new IllegalArgumentException("Invalid credentials"));
 
-        // when
-        ApiResponse<LoginResponseDto> response = userController.login(loginRequestDto);
-
-        // then
-        assertThat(response.getCode())
-                .isEqualTo(ErrorStatus.AUTH_NOT_EXISTS.getCode());
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> {
+            userController.login(loginRequestDto);
+        });
 
         verify(userService, times(1))
                 .login(loginRequestDto.getEmail(), loginRequestDto.getPassword());

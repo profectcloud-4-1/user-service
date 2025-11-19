@@ -1,13 +1,30 @@
 spring:
+  config:
+    activate:
+      on-profile: test
   datasource:
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
 
-  jwt:
-    private-key: ${JWT_SECRET}
+  data:
+    redis:
+      host: localhost
+      port: 6537
+      password: 1234
+      database: 0
+      timeout: 5s
+      connect-timeout: 5s
+      repositories:
+        enabled: false
 
+  jwt:
+    private-key: testJwt
+    issuer: testIssuer
+    audience: testAud
+    access-expiration-ms: 3600000
+    refresh-expiration-ms: 86400000
   jpa:
     hibernate:
       ddl-auto: create-drop   # 테스트할 때마다 스키마 새로 만들고 끝나면 드롭
