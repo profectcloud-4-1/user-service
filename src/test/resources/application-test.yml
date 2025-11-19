@@ -6,7 +6,7 @@ spring:
     password:
 
   jwt:
-    private-key: ${JWT_SECRET}
+    private-key: testJwt
     issuer: testIssuer
     audience: testAud
     access-expiration-ms: 3600000
