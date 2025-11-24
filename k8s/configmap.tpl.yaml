@@ -4,7 +4,7 @@ metadata:
   name: user-service-config
 data:
   # Spring
-  SPRING_PROFILES_ACTIVE: "prod"
+  SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
   SERVER_PORT: "${SERVER_PORT}"
 
   # Database (PostgreSQL)
