@@ -53,3 +53,11 @@ service:
     url: http://localhost:8080
   payment:
     url: http://localhost:8080
+
+
+secret:
+  aws:
+    access-key: dummy
+    secret-key: dummy
+    region: ap-northeast-2
+    config: "optional:aws-parameterstore:/config/spring/"
