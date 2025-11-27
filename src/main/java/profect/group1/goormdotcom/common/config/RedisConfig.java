@@ -27,18 +27,28 @@ public class RedisConfig {
     @Value("${spring.data.redis.database:0}")
     private int redisDatabase;
 
+    @Value("${app.redis.ssl-enabled}")
+    private boolean useSsl;
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-                .clientOptions(ClientOptions.builder()
-                        .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
-                        .build())
-                .commandTimeout(Duration.ofSeconds(2))
-                .build();
 
-        RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration();
-        serverConfig.setHostName(redisHost);
-        serverConfig.setPort(redisPort);
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder =
+                LettuceClientConfiguration.builder()
+                        .clientOptions(ClientOptions.builder()
+                                .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
+                                .build())
+                        .commandTimeout(Duration.ofSeconds(2));
+
+        if (useSsl) {
+            builder.useSsl().disablePeerVerification();
+        }
+
+        LettuceClientConfiguration clientConfig = builder.build();
+
+        RedisStandaloneConfiguration serverConfig =
+                new RedisStandaloneConfiguration(redisHost, redisPort);
+
         serverConfig.setDatabase(redisDatabase);
 
         if (redisPassword != null && !redisPassword.isBlank()) {

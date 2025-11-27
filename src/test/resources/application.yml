@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: "user-service"
+  profiles:
+    active: test
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:user-test-db;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 0
+      timeout: 5s
+      connect-timeout: 5s
+      repositories:
+        enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 200
+        format_sql: true
+
+jwt:
+  issuer: test-issuer
+  audience: test-audience
+  private-key: test-secret
+  access-expiration-ms: 3600000      # 1h
+  refresh-expiration-ms: 86400000    # 24h
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: never
+
+server:
+  port: 18084
+
+service:
+  product:
+    url: http://localhost:18081
+  order:
+    url: http://localhost:18082
+  payment:
+    url: http://localhost:18083
+
+app:
+  redis:
+    ssl-enabled: false
