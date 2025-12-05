@@ -108,11 +108,15 @@ dependencies {
 
     //redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    //Opentelemetry
+    implementation "io.opentelemetry:opentelemetry-api"
 }
 
 dependencyManagement {
 	imports {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "io.opentelemetry:opentelemetry-bom:1.34.1"
 	}
 }
 
