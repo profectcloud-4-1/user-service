@@ -47,3 +47,4 @@ config/application-*.yml
 
 #log
 logs/
+/opentelemetry-javaagent.jar
