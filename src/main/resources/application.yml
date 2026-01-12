@@ -32,14 +32,14 @@ spring:
     issuer: ${JWT_ISSUER}
     audience: ${JWT_AUDIENCE}
     private-key: ${JWT_SECRET}
-    access-expiration-ms: ${JWT_ACCESS_EXPIRATION}        # 30분
+    access-expiration-ms: ${JWT_ACCESS_EXPIRATION} # 30분
     refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION}
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info
+        include: health, info, prometheus
   endpoint:
     health:
       show-details: never
